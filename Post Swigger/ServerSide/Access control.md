@@ -1,4 +1,40 @@
+```table-of-contents
+```
+# Access control
+## Khái niệm
+Kiểm soát truy cập là việc áp dụng các ràng buộc về việc ai hoặc cái gì được ủy quyền thực hiện hành động hoặc truy cập tài nguyên. Trong ngữ cảnh ứng dụng web, kiểm soát truy cập phụ thuộc vào xác thực và quản lý phiên:
 
+- **Xác thực (authentication)** xác nhận người dùng đúng là người mà họ tuyên bố.
+- **Quản lý phiên (session management)** nhận diện những yêu cầu HTTP tiếp theo được thực hiện bởi cùng người dùng đó.
+- **Kiểm soát truy cập (access control)** quyết định liệu người dùng có được phép thực hiện hành động mà họ đang cố gắng thực hiện hay không.
+
+Các lỗi kiểm soát truy cập (broken access controls) rất phổ biến và thường là lỗ hổng bảo mật nghiêm trọng. Việc thiết kế và vận hành kiểm soát truy cập là một bài toán phức tạp và động, áp dụng các ràng buộc về kinh doanh, tổ chức và pháp lý lên một hiện thực kỹ thuật. Các quyết định thiết kế kiểm soát truy cập phải do con người đưa ra, vì vậy khả năng xảy ra sai sót là cao.
+![](../../image/Pasted%20image%2020260501215614.png)
+
+## Kiểm soát truy cập theo chiều dọc
+Kiểm soát truy cập theo chiều dọc là các cơ chế hạn chế quyền truy cập vào các chức năng nhạy cảm cho các loại người dùng cụ thể.
+
+Với kiểm soát truy cập theo chiều dọc, các loại người dùng khác nhau có quyền truy cập vào các chức năng ứng dụng khác nhau. Ví dụ, quản trị viên có thể sửa đổi hoặc xóa tài khoản của bất kỳ người dùng nào, trong khi người dùng thông thường không có quyền truy cập các thao tác này. Kiểm soát truy cập theo chiều dọc có thể là các triển khai chi tiết hơn (fine-grained) của các mô hình bảo mật được thiết kế để thực thi các chính sách nghiệp vụ như phân tách nhiệm vụ và đặc quyền tối thiểu.
+## Kiểm soát truy cập theo chiều ngang
+Kiểm soát truy cập theo chiều ngang là các cơ chế hạn chế quyền truy cập vào tài nguyên cho những người dùng cụ thể.
+
+Với kiểm soát truy cập theo chiều ngang, những người dùng khác nhau có quyền truy cập vào một tập con các tài nguyên cùng loại. Ví dụ, một ứng dụng ngân hàng sẽ cho phép người dùng xem giao dịch và thực hiện thanh toán từ chính các tài khoản của họ, nhưng không phải từ các tài khoản của bất kỳ người dùng nào khác.
+## Kiểm soát truy cập phụ thuộc ngữ cảnh
+Kiểm soát truy cập phụ thuộc ngữ cảnh hạn chế quyền truy cập vào chức năng và tài nguyên dựa trên trạng thái của ứng dụng hoặc cách người dùng tương tác với ứng dụng.
+
+Kiểm soát truy cập phụ thuộc ngữ cảnh ngăn người dùng thực hiện các hành động theo sai thứ tự. Ví dụ, một website bán lẻ có thể ngăn người dùng sửa đổi nội dung giỏ hàng sau khi họ đã thanh toán.
+## Lỗ hổng
+Lỗ hổng kiểm soát truy cập bị lỗi tồn tại khi người dùng có thể truy cập các tài nguyên hoặc thực hiện các hành động mà họ không được phép.
+### Leo thang đặc quyền - Dọc
+
+Nếu một người dùng có thể truy cập vào chức năng mà họ không được phép truy cập thì đây là leo thang đặc quyền theo chiều dọc. Ví dụ, nếu một người dùng không có quyền quản trị có thể truy cập vào trang quản trị nơi họ có thể xóa tài khoản người dùng, thì đây là leo thang đặc quyền theo chiều dọc.
+
+#### Chức năng không được bảo vệ
+
+Ở mức cơ bản nhất, leo thang đặc quyền theo chiều dọc xuất hiện khi một ứng dụng không thực thi bất kỳ biện pháp bảo vệ nào đối với các chức năng nhạy cảm. Ví dụ, các chức năng quản trị có thể được liên kết từ trang chào mừng của quản trị viên nhưng không có trên trang chào mừng của người dùng. Tuy nhiên, một người dùng vẫn có thể truy cập các chức năng quản trị bằng cách duyệt tới URL quản trị tương ứng.
+Ví dụ, một website có thể lưu trữ chức năng nhạy cảm tại URL sau:
+
+```
 <https://insecure-website.com/admin>
 ```
 
@@ -167,37 +203,6 @@ Có thể ngăn chặn lỗ hổng kiểm soát truy cập bằng cách áp dụ
 - **Kiểm tra và đánh giá toàn diện** các cơ chế kiểm soát truy cập để đảm bảo chúng hoạt động đúng như thiết kế.
 
 # WU 
-
-<!-- TOC -->
-## Mục lục
-
-    - [Kiểm soát dựa trên tham số](#kiểm-soát-dựa-trên-tham-số)
-    - [Cấu hình sai ở nền tảng](#cấu-hình-sai-ở-nền-tảng)
-    - [Sai lệch khi đối sánh URL](#sai-lệch-khi-đối-sánh-url)
-  - [Leo thang đặc quyền ngang](#leo-thang-đặc-quyền-ngang)
-  - [Leo thang đặc quyền ngang - dọc](#leo-thang-đặc-quyền-ngang---dọc)
-  - [Tham chiếu đối tượng trực tiếp ko an toàn (IDOR)](#tham-chiếu-đối-tượng-trực-tiếp-ko-an-toàn-idor)
-    - [Khái niệm](#khái-niệm)
-    - [Database](#database)
-    - [Static files](#static-files)
-  - [Quy trình nhiều bước](#quy-trình-nhiều-bước)
-  - [Referer](#referer)
-  - [Vị trí](#vị-trí)
-- [Ngăn chặn](#ngăn-chặn)
-- [Unprotected admin functionality](#unprotected-admin-functionality)
-- [Unprotected admin functionality with unpredictable URL](#unprotected-admin-functionality-with-unpredictable-url)
-- [User role controlled by request parameter](#user-role-controlled-by-request-parameter)
-- [User role can be modified in user profile](#user-role-can-be-modified-in-user-profile)
-- [URL-based access control can be circumvented](#url-based-access-control-can-be-circumvented)
-- [Method-based access control can be circumvented](#method-based-access-control-can-be-circumvented)
-- [User ID controlled by request parameter](#user-id-controlled-by-request-parameter)
-- [User ID controlled by request parameter with unpredictable user IDS](#user-id-controlled-by-request-parameter-with-unpredictable-user-ids)
-- [User ID controlled by request parameter with data leakage in redirect](#user-id-controlled-by-request-parameter-with-data-leakage-in-redirect)
-- [User ID controlled by request parameter with  pasword disclosure](#user-id-controlled-by-request-parameter-with--pasword-disclosure)
-- [Insecure direct object references](#insecure-direct-object-references)
-- [Multi-step process with no access control on one step](#multi-step-process-with-no-access-control-on-one-step)
-- [Referer-based access control](#referer-based-access-control)
-<!-- /TOC -->
 - [ ] Unprotected admin functionality
 - [ ] Unprotected admin functionality with unpredictable URL
 - [ ] User role controlled by request parameter

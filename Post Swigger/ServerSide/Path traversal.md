@@ -1,4 +1,18 @@
-php
+```table-of-contents
+```
+# Path traversal
+## Khái niệm
+Path traversal (còn gọi là directory traversal) là kiểu lỗ hổng cho phép kẻ tấn công đọc các tệp (file) tùy ý trên máy chủ đang chạy ứng dụng. Những tệp này có thể bao gồm:
+
+- Mã nguồn và dữ liệu của ứng dụng.
+- Thông tin xác thực (credentials) của các hệ thống back-end.
+- Các tệp nhạy cảm của hệ điều hành.
+
+Trong một số trường hợp, kẻ tấn công còn có thể ghi vào các tệp tùy ý trên máy chủ, từ đó thay đổi dữ liệu hoặc hành vi của ứng dụng và cuối cùng chiếm quyền kiểm soát hoàn toàn máy chủ.
+## Đọc tệp
+Hãy tưởng tượng một ứng dụng mua sắm hiển thị ảnh của các mặt hàng đang bán. Ứng dụng có thể tải một ảnh bằng HTML sau:
+
+```php
 <img src="/loadImage?filename=218.png">
 ```
 
@@ -92,19 +106,6 @@ if (file.getCanonicalPath().startsWith(BASE_DIRECTORY)) {
 Ở đây, `getCanonicalPath()` giúp loại bỏ các chuỗi `../` và chuẩn hóa đường dẫn, đảm bảo rằng tệp được truy cập không thể thoát ra ngoài thư mục gốc cho phép.
 
 # WU 6 lab
-
-<!-- TOC -->
-## Mục lục
-
-- [Lỗi phổ biến](#lỗi-phổ-biến)
-- [Phòng chống](#phòng-chống)
-  - [File path traversal - simple case](#file-path-traversal---simple-case)
-  - [File path traversal, traversal sequences blocked with absolute path bypass](#file-path-traversal-traversal-sequences-blocked-with-absolute-path-bypass)
-  - [File path traversal, traversal sequences stripped non-recursively](#file-path-traversal-traversal-sequences-stripped-non-recursively)
-  - [File path traversal, traversal sequences stripped with superfluous URL-decode](#file-path-traversal-traversal-sequences-stripped-with-superfluous-url-decode)
-  - [File path traversal, validation of start of path](#file-path-traversal-validation-of-start-of-path)
-  - [File path traversal, validation of file extension with null byte bypass](#file-path-traversal-validation-of-file-extension-with-null-byte-bypass)
-<!-- /TOC -->
  
 - [x] File path traversal - Simple case
 - [x] File path traversal - Traversal sequences blocked with absolute path bypass

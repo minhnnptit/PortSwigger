@@ -1,6 +1,40 @@
 
 
-https://insecure-website.com/products?category=Gifts ```
+```table-of-contents
+```
+
+
+
+# SQL Injection
+
+## SQLI là gì?
+- đây là 1 kiểu lỗ hổng bảo mật web mà attacker có thể can thiệp vào các truy vấn tới database để xâm nhập trái phép vào database của hệ thống
+- về cơ bản, các chủng lỗi injection đều chung 1 bản chất: hệ thống nhầm lẫn giữa user input và instruction tức là các câu lệnh để ra lệnh cho hệ thống
+- nguyên lý khai thác là ta tìm cách kéo dài, nối dài, chèn thêm các instruction vào input để thao túng đối tượng
+**nguyên nhân**: sao lại để user input lọt vào truy vấn sql
+=> vì nhu cầu để user truy vấn thông tin từ database, hoặc là lưu, cập nhật các thứ .... gần như là chức năng cơ bản mà bất kỳ web động nào cũng có
+=> dẫn tới sql injection là một loại lỗi bảo mật phổ biến và xác suất tìm thấy rất cao
+![](../../image/Pasted%20image%2020260324221656.png)
+
+![](../../image/Pasted%20image%2020260325203410.png)
+
+## PHÁT HIỆN SQLI
+- dấu ' và quan sát lỗi trả về
+- một số cú pháp đặc thù của sql để đánh giá giá trị gốc của điểm nhập và so sánh với 1 giá trị khác, rồi tìm kiếm sự khác biệt có hệ thống trong phản hồi của ứng dụng.
+- các điều kiện boolean như OR 1=1 và OR 1=2 để tìm sự khác biệt trong phản hồi
+- các payload đc thiêt kế để kích hoạt time delay khi được thực thi trong câu truy vấn sql, quan sát sự khác biệt trong time response
+- các paylaod OAST đc thiết kế để kích hoạt một tương tác out of band khi đc thực thi trong câu truy vấn sql, và giám sát mọi tương tác xảy ra.
+- sử dụng **burp scanner**
+
+Hầu hết các lỗ hổng sql xảy ra trong mệnh đề ==`WHERE`== của câu truy vấn ==`SELECT`==, bên cạnh:
+- trong câu lệnh `UPDATE`, nằm trong các giá trị đc cập nhật hoặc trong mệnh đề `WHERE`
+	- trong câu lệnh `INSERT`, nằm trong giá trị đc chèn
+	- trong câu lệnh `SELECT`, nằm trong tên bảng, cột, mệnh đề `ORDER BY`
+## Truy xuất dữ liệu ẩn - retrieval hidden data
+
+Hãy tưởng tượng một ứng dụng mua sắm hiển thị các sản phẩm trong các danh mục khác nhau. Khi người dùng nhấp vào danh mục **Gifts**, trình duyệt của họ sẽ gửi yêu cầu đến URL:
+
+```https://insecure-website.com/products?category=Gifts ```
 
 Điều này khiến ứng dụng tạo một câu truy vấn SQL để lấy thông tin chi tiết của các sản phẩm liên quan từ cơ sở dữ liệu: 
 
@@ -419,42 +453,6 @@ Các chức năng của ứng dụng mà chèn dữ liệu không tin cậy vào
 - Rất dễ phạm sai lầm về nguồn gốc dữ liệu.
 - Hoặc các thay đổi trong các phần khác của code có thể làm dữ liệu "đáng tin" trở nên ko đáng tin nữa
 # WU 16 lab 
-
-<!-- TOC -->
-## Mục lục
-
-- [Lật ngược logic ứng dụng - Subverting application logic](#lật-ngược-logic-ứng-dụng---subverting-application-logic)
-- [Truy xuất thông tin từ bảng dữ liêu khác](#truy-xuất-thông-tin-từ-bảng-dữ-liêu-khác)
-  - [UNION attack](#union-attack)
-- [Kiểm tra DB trong các cuộc tấn công](#kiểm-tra-db-trong-các-cuộc-tấn-công)
-- [Blind SQL](#blind-sql)
-  - [phản hồi có điều kiện](#phản-hồi-có-điều-kiện)
-  - [error-based SQLi](#error-based-sqli)
-  - [Time delay](#time-delay)
-  - [Out of band OAST](#out-of-band-oast)
-- [Trích xuất dữ liệu nhạy cảm thông qua thông báo lỗi chi tiết từ SQL](#trích-xuất-dữ-liệu-nhạy-cảm-thông-qua-thông-báo-lỗi-chi-tiết-từ-sql)
-- [SQLi trong các TH khác](#sqli-trong-các-th-khác)
-- [Second-order SQLi](#second-order-sqli)
-- [Phòng chống SQLi](#phòng-chống-sqli)
-  - [SQLi vulnerability in WHERE clause allowing retrieval of hidden data](#sqli-vulnerability-in-where-clause-allowing-retrieval-of-hidden-data)
-  - [SQL injection vulnerability allow login bypass](#sql-injection-vulnerability-allow-login-bypass)
-  - [SQLi UNION attack, determining the number of columns returnd by the query](#sqli-union-attack-determining-the-number-of-columns-returnd-by-the-query)
-  - [SQLi UNION attack, finding a column containing text](#sqli-union-attack-finding-a-column-containing-text)
-  - [SQLi UNION attack retrieving data from other tables](#sqli-union-attack-retrieving-data-from-other-tables)
-  - [SQLi UNION attack, retrieving multiple values in a single column](#sqli-union-attack-retrieving-multiple-values-in-a-single-column)
-  - [SQLi attack, querying db type and version on Oracle](#sqli-attack-querying-db-type-and-version-on-oracle)
-  - [SQLi attack, querying db type on MySQL, Microsoft](#sqli-attack-querying-db-type-on-mysql-microsoft)
-  - [SQLi attack, listing the db contents on non-oracle db](#sqli-attack-listing-the-db-contents-on-non-oracle-db)
-  - [SQLi attack, listing the db contents on Oracle](#sqli-attack-listing-the-db-contents-on-oracle)
-  - [Blind SQLi with conditional response](#blind-sqli-with-conditional-response)
-  - [Blind SQLi with conditional errors](#blind-sqli-with-conditional-errors)
-  - [Visible error-based SQLi](#visible-error-based-sqli)
-  - [Blind SQLi with time delays](#blind-sqli-with-time-delays)
-  - [Blind SQLi with time delays and information retrieval](#blind-sqli-with-time-delays-and-information-retrieval)
-  - [Blind SQLi Out of band](#blind-sqli-out-of-band)
-  - [Blind SQLi Out of Band data exfiltration](#blind-sqli-out-of-band-data-exfiltration)
-  - [SQL injection with filter bypass via XML encoding](#sql-injection-with-filter-bypass-via-xml-encoding)
-<!-- /TOC -->
 
 - [x] lí thuyết sql
 - [x] SQL injection vulnerability in WHERE clause allowing retrieval of hidden data

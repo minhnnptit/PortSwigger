@@ -1,4 +1,18 @@
+```table-of-contents
+```
 
+# Command Injection
+## Khái niệm
+OS command injection còn được gọi là shell injection. Nó cho phép kẻ tấn công thực thi các lệnh của hệ điều hành (OS) trên máy chủ đang chạy ứng dụng, và thường dẫn đến việc chiếm quyền kiểm soát hoàn toàn ứng dụng cùng dữ liệu của nó. Thông thường, kẻ tấn công có thể lợi dụng lỗ hổng OS command injection để xâm phạm các thành phần khác của hạ tầng lưu trữ, và khai thác các mối quan hệ tin cậy để mở rộng tấn công (pivot) sang các hệ thống khác trong cùng tổ chức.
+![](../../image/Pasted%20image%2020260330100556.png)
+
+## Chèn OS Command
+
+Ví dụ sau minh họa cách một ứng dụng có thể bị khai thác:
+
+Một ứng dụng mua sắm cho phép người dùng kiểm tra xem một mặt hàng có còn trong kho tại một cửa hàng cụ thể hay không. Thông tin này được truy vấn thông qua một URL:
+
+```
 <https://insecure-website.com/stockStatus?productID=381&storeID=29>
 ```
 
@@ -162,23 +176,6 @@ Nếu bạn buộc phải gọi lệnh hệ điều hành với dữ liệu do n
 ⚠️ **Không bao giờ cố gắng "sanitize" input bằng cách escape các metacharacter của shell.** Trên thực tế, cách này rất dễ sai sót và có thể bị kẻ tấn công có kỹ năng cao bypass.
 
 # WU 5 bài
-
-<!-- TOC -->
-## Mục lục
-
-- [Command phổ biến](#command-phổ-biến)
-- [Blind OS Command Injection](#blind-os-command-injection)
-  - [Time delay](#time-delay)
-  - [Redirecting output](#redirecting-output)
-  - [OAST](#oast)
-- [Các lệnh chèn OS Command Injection](#các-lệnh-chèn-os-command-injection)
-- [Phòng chống](#phòng-chống)
-  - [OS command injection - simple case](#os-command-injection---simple-case)
-  - [Blind OS command injection with time delays](#blind-os-command-injection-with-time-delays)
-  - [Blind command injection with output redirection](#blind-command-injection-with-output-redirection)
-  - [Blind OS command injection with out-of-band interaction](#blind-os-command-injection-with-out-of-band-interaction)
-  - [Blind OS command injection with out-of-band data exfiltration](#blind-os-command-injection-with-out-of-band-data-exfiltration)
-<!-- /TOC -->
 
 - [x] OS command injection - Simple case
 - [x] Blind OS command injection with time delays

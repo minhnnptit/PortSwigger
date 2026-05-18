@@ -1,4 +1,30 @@
+```table-of-contents
+```
+# No SQL
+## Khái niệm
 
+---
+
+Có hai loại NoSQL injection khác nhau:
+
+- **Syntax injection (chèn cú pháp)** – Xảy ra khi bạn có thể phá vỡ cú pháp của truy vấn NoSQL, cho phép chèn payload của riêng bạn. Phương pháp tiếp cận tương tự như trong SQL injection. Tuy nhiên, bản chất của cuộc tấn công khác biệt đáng kể vì các cơ sở dữ liệu NoSQL sử dụng nhiều ngôn ngữ truy vấn, kiểu cú pháp và cấu trúc dữ liệu khác nhau.
+- **Operator injection (chèn toán tử)** – Xảy ra khi bạn có thể sử dụng các toán tử truy vấn của NoSQL để thao túng truy vấn.
+
+Trong chủ đề này, chúng ta sẽ xem cách kiểm thử các lỗ hổng NoSQL nói chung, sau đó tập trung khai thác lỗ hổng trong MongoDB, cơ sở dữ liệu NoSQL phổ biến nhất.
+
+---
+
+## Syntax Injection
+
+---
+
+Bạn có thể phát hiện lỗ hổng NoSQL injection bằng cách cố gắng phá vỡ cú pháp truy vấn. Để làm điều này, hãy kiểm thử có hệ thống từng input bằng cách gửi các chuỗi fuzz và ký tự đặc biệt. Nếu ứng dụng không được lọc hoặc kiểm tra đúng cách, chúng sẽ gây ra lỗi cơ sở dữ liệu hoặc các hành vi có thể phát hiện khác.
+
+Nếu bạn biết ngôn ngữ API của cơ sở dữ liệu mục tiêu, hãy sử dụng các ký tự đặc biệt và chuỗi fuzz phù hợp với ngôn ngữ đó. Ngược lại, hãy dùng nhiều loại chuỗi fuzz để nhắm đến nhiều ngôn ngữ API khác nhau.
+
+Xem xét một ứng dụng mua sắm hiển thị sản phẩm theo các danh mục. Khi người dùng chọn danh mục **Fizzy drinks**, trình duyệt của họ gửi yêu cầu sau:
+
+```
 <https://insecure-website.com/product/lookup?category=fizzy>
 ```
 
@@ -354,20 +380,6 @@ Cách phòng chống tấn công NoSQL injection phụ thuộc vào công nghệ
 - **Ngăn chặn operator injection** – áp dụng allowlist cho các key được chấp nhận.
 
 # WU
-
-<!-- TOC -->
-## Mục lục
-
-- [Khai thác Syntax Injection](#khai-thác-syntax-injection)
-- [Operator Injection](#operator-injection)
-- [Khai thác Operator Injection](#khai-thác-operator-injection)
-- [Time based Attack](#time-based-attack)
-- [Phòng chống](#phòng-chống)
-- [Detecting NoSQL injection](#detecting-nosql-injection)
-- [Exploiting NoSQL operator injection to bypass authentication](#exploiting-nosql-operator-injection-to-bypass-authentication)
-- [Exploiting NoSQL injection to extract data](#exploiting-nosql-injection-to-extract-data)
-- [Exploiting NoSQL operator injection to extract unknown fields](#exploiting-nosql-operator-injection-to-extract-unknown-fields)
-<!-- /TOC -->
 - [x] Detecting NoSQL injection
 - [x] Exploiting NoSQL operator injection to bypass authentication
 - [x] Exploiting NoSQL injection to extract data

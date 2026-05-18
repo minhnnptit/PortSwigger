@@ -1,4 +1,29 @@
-php
+```table-of-contents
+```
+
+# SSTI là gì?
+
+**Server-side template injection** (SSTI) là khi kẻ tấn công có thể sử dụng cú pháp gốc của hệ thống template để chèn một payload độc hại vào template, và payload này được thực thi ở phía máy chủ.
+
+Các **template engine** được thiết kế để tạo trang web bằng cách kết hợp các mẫu (template) cố định với dữ liệu biến đổi. Tấn công SSTI có thể xảy ra khi đầu vào của người dùng được **nối trực tiếp** vào template thay vì được truyền vào như **dữ liệu**. Điều này cho phép kẻ tấn công chèn các **chỉ thị (directive) của template** tùy ý nhằm thao túng template engine, thường dẫn đến khả năng chiếm quyền kiểm soát hoàn toàn máy chủ. Đúng như tên gọi, các payload SSTI được gửi và **đánh giá (evaluate) ở phía máy chủ**, khiến chúng tiềm ẩn nguy hiểm hơn nhiều so với các kiểu **client-side template injection** thông thường.
+
+# Hậu quả
+
+
+Các lỗ hổng server-side template injection có thể phơi bày website trước nhiều kiểu tấn công khác nhau tùy thuộc vào template engine liên quan và cách ứng dụng sử dụng nó. Trong một số trường hợp hiếm hoi, các lỗ hổng này không gây rủi ro bảo mật đáng kể. Tuy nhiên, hầu hết thời gian, tác động của server-side template injection có thể là thảm khốc.
+
+Ở mức độ nghiêm trọng nhất, kẻ tấn công có thể đạt được **remote code execution (RCE)**, giành quyền kiểm soát hoàn toàn máy chủ back-end và sử dụng nó để thực hiện các cuộc tấn công khác vào hạ tầng nội bộ.
+
+Ngay cả khi không thể thực thi mã từ xa hoàn toàn, kẻ tấn công vẫn thường có thể dùng server-side template injection làm nền tảng cho vô số cuộc tấn công khác, có khả năng chiếm quyền đọc dữ liệu nhạy cảm và các tệp tùy ý trên máy chủ.
+
+# Nguyên nhân
+
+
+Lỗ hổng server-side template injection phát sinh khi đầu vào của người dùng bị nối (concatenate) trực tiếp vào template thay vì được truyền vào như dữ liệu.
+
+Các template tĩnh chỉ cung cấp các placeholder để nội dung động được render vào nói chung **không dễ** bị SSTI. Ví dụ kinh điển là email chào người dùng bằng tên của họ, như trích đoạn từ template Twig sau:
+
+```php
 $output = $twig->render("Dear {first_name},", array("first_name" => $user.first_name) );
 ```
 
@@ -21,26 +46,6 @@ Những lỗ hổng kiểu này đôi khi xảy ra **vô tình** do thiết kế
 Tuy nhiên, đôi khi hành vi này lại được **cố ý** triển khai. Ví dụ, một số website thiết kế cho phép một số người dùng có đặc quyền nhất định, như biên tập viên nội dung, chỉnh sửa hoặc gửi các template tùy chỉnh. Rõ ràng, điều này gây ra rủi ro bảo mật rất lớn nếu kẻ tấn công chiếm được một tài khoản có đặc quyền như vậy.
 
 # Xây dựng cuộc tấn công
-
-<!-- TOC -->
-## Mục lục
-
-- [Detect (Phát hiện)](#detect-phát-hiện)
-  - [Plaintext context](#plaintext-context)
-  - [Code context](#code-context)
-- [Identify (Nhận diện)](#identify-nhận-diện)
-- [Exploit (Khai thác)](#exploit-khai-thác)
-  - [Read](#read)
-  - [Explore the environment](#explore-the-environment)
-  - [Create a custom attack](#create-a-custom-attack)
-- [Basic server-side template injection](#basic-server-side-template-injection)
-- [Basic server-side template injection (code context)](#basic-server-side-template-injection-code-context)
-- [SSTI using documentation](#ssti-using-documentation)
-- [SSTI in an unknown language with a documentation exploit](#ssti-in-an-unknown-language-with-a-documentation-exploit)
-- [SSTI with info disclosure via user-supplied objects](#ssti-with-info-disclosure-via-user-supplied-objects)
-- [Server-side template injection in a sandboxed environment](#server-side-template-injection-in-a-sandboxed-environment)
-- [Server-side template injection with a custom exploit](#server-side-template-injection-with-a-custom-exploit)
-<!-- /TOC -->
 
 
 Việc nhận diện lỗ hổng server-side template injection và xây dựng một cuộc tấn công thành công thường bao gồm quy trình tổng quát sau.

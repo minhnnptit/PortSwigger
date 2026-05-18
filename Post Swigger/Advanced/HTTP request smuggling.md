@@ -1,4 +1,41 @@
+```table-of-contents
+```
 
+# Giới thiệu chung
+
+Trong phần này, chúng tôi sẽ giải thích các cuộc tấn công tráo yêu cầu HTTP (HTTP request smuggling) và mô tả cách các lỗ hổng tráo yêu cầu phổ biến có thể phát sinh.
+# Khái niệm
+
+HTTP request smuggling là một kỹ thuật can thiệp vào cách một website xử lý các chuỗi yêu cầu HTTP được nhận từ một hoặc nhiều người dùng. Các lỗ hổng request smuggling thường mang tính chất nghiêm trọng, cho phép kẻ tấn công vượt qua các cơ chế bảo mật, truy cập trái phép vào dữ liệu nhạy cảm và trực tiếp xâm hại những người dùng ứng dụng khác.
+
+Tráo yêu cầu (request smuggling) chủ yếu liên quan đến các yêu cầu HTTP/1. Tuy nhiên, các website hỗ trợ HTTP/2 cũng có thể dễ bị tổn thương, tùy thuộc vào kiến trúc backend của chúng.
+![](../../image/Pasted%20image%2020260507110432.png)
+
+> **Nghiên cứu PortSwigger**
+> 
+> HTTP request smuggling lần đầu được ghi nhận vào năm 2005, và được làm sống lại phổ biến nhờ các nghiên cứu sâu rộng của PortSwigger về chủ đề này. Để biết chi tiết, hãy tham khảo các báo trắng sau:
+> 
+> - Các cuộc tấn công desync HTTP: Tráo yêu cầu hồi sinh
+> - HTTP/2: Phần tiếp theo luôn tệ hơn
+> - Các cuộc tấn công desync do trình duyệt điều khiển: Một biên giới mới trong tráo yêu cầu HTTP
+# Diễn biến
+
+Các ứng dụng web ngày nay thường sử dụng chuỗi nhiều máy chủ HTTP giữa người dùng và phần logic ứng dụng cuối cùng. Người dùng gửi yêu cầu đến một máy chủ phía trước (đôi khi gọi là load balancer hoặc reverse proxy) và máy chủ này chuyển tiếp các yêu cầu đến một hoặc nhiều máy chủ phía sau (back-end). Kiến trúc loại này ngày càng phổ biến và trong một số trường hợp là không thể tránh được trong các ứng dụng hiện đại trên đám mây.
+
+Khi máy chủ phía trước chuyển tiếp các yêu cầu HTTP đến máy chủ phía sau, nó thường gửi nhiều yêu cầu trên cùng một kết nối mạng đến back-end, bởi vì cách này hiệu quả và có hiệu năng cao hơn. Giao thức rất đơn giản; các yêu cầu HTTP được gửi nối tiếp nhau, và máy chủ nhận phải xác định được nơi một yêu cầu kết thúc và yêu cầu tiếp theo bắt đầu:
+![](../../image/Pasted%20image%2020260507110525.png)
+Trong tình huống này, điều then chốt là hệ thống phía trước và phía sau phải thống nhất về ranh giới giữa các yêu cầu. Nếu không, kẻ tấn công có thể gửi một yêu cầu mơ hồ (ambiguous) mà máy chủ phía trước và phía sau hiểu khác nhau:
+![](../../image/Pasted%20image%2020260507110649.png)
+Ở đây, kẻ tấn công khiến một phần của yêu cầu gửi tới máy chủ phía trước bị máy chủ phía sau hiểu nhầm là phần bắt đầu của yêu cầu tiếp theo. Phần đó về cơ bản được ghép vào trước yêu cầu tiếp theo, và do đó có thể can thiệp vào cách ứng dụng xử lý yêu cầu đó. Đây là một cuộc tấn công tráo yêu cầu, và nó có thể gây ra hậu quả nghiêm trọng.
+
+# Nguyên nhân
+
+
+Hầu hết lỗ hổng HTTP request smuggling phát sinh bởi vì đặc tả HTTP/1 cung cấp hai cách khác nhau để xác định nơi một yêu cầu kết thúc: header **`Content-Length`** và header **`Transfer-Encoding`**.
+
+Header **`Content-Length`** rất trực tiếp: nó chỉ định độ dài của phần thân (message body) theo byte. Ví dụ:
+
+```
 POST /search HTTP/1.1
 Host: normal-website.com
 Content-Type: application/x-www-form-urlencoded
@@ -41,72 +78,6 @@ Nếu máy chủ phía trước và máy chủ phía sau hành xử khác nhau l
 > Tuy nhiên, nhiều website có một máy chủ phía trước nói chuyện bằng HTTP/2, nhưng phía sau vẫn triển khai hạ tầng chỉ hỗ trợ HTTP/1. Điều này có nghĩa máy chủ phía trước thực tế phải dịch (translate) các yêu cầu nó nhận thành HTTP/1. Quá trình này được gọi là **HTTP downgrading**. Để biết thêm, xem phần _Advanced request smuggling_.
 
 # Xây dựng cuộc tấn công
-
-<!-- TOC -->
-## Mục lục
-
-- [CL.TE](#clte)
-- [[TE.CL](http://TE.CL)](#teclhttptecl)
-- [TE.TE](#tete)
-- [CL.TE](#clte-1)
-- [[TE.CL](http://TE.CL)](#teclhttptecl-1)
-- [CL.TE](#clte-2)
-- [[TE.CL](http://TE.CL)](#teclhttptecl-2)
-- [Vượt cơ chế bảo vệ](#vượt-cơ-chế-bảo-vệ)
-- [Chỉnh sửa HTTP Request](#chỉnh-sửa-http-request)
-- [Vượt xác thực người dùng](#vượt-xác-thực-người-dùng)
-- [Thu thập request](#thu-thập-request)
-- [XSS](#xss)
-- [On-site → Open](#on-site--open)
-  - [Root-relative → Open](#root-relative--open)
-- [Web cache Poisoning](#web-cache-poisoning)
-- [Web cache Deception](#web-cache-deception)
-- [HTTP/2](#http2)
-  - [Message length](#message-length)
-  - [**HTTP/2 downgrading**](#http2-downgrading)
-  - [[H2.CL](http://H2.CL)](#h2clhttph2cl)
-  - [H2.TE](#h2te)
-  - [HTTP/2 ẩn](#http2-ẩn)
-  - [**HTTP/2-exclusive vectors**](#http2-exclusive-vectors)
-- [**Response queue**](#response-queue)
-  - [Hậu quả](#hậu-quả)
-  - [Xây dựng cuộc tấn công](#xây-dựng-cuộc-tấn-công)
-- [HTTP/2 request splitting](#http2-request-splitting)
-  - [Viết lại FE](#viết-lại-fe)
-- [**HTTP request tunnelling**](#http-request-tunnelling)
-  - [HTTP/2](#http2-1)
-  - [**Leaking internal headers**](#leaking-internal-headers)
-  - [**Blind request**](#blind-request)
-  - [**Non-blind request**](#non-blind-request)
-- [Web cache](#web-cache)
-- [[0.CL](http://0.CL)](#0clhttp0cl)
-- [CL.0](#cl0)
-  - [Kiểm thử](#kiểm-thử)
-  - [Kích hoạt](#kích-hoạt)
-  - [Khai thác](#khai-thác)
-  - [H2.0](#h20)
-  - [Bảo mật](#bảo-mật)
-- [Tấn công desync](#tấn-công-desync)
-  - [Khái niệm](#khái-niệm)
-  - [Kiểm thử](#kiểm-thử-1)
-  - [Xâm nhập](#xâm-nhập)
-  - [Pause-based desync](#pause-based-desync)
-- [HTTP request smuggling, confirming a CL.TE vulnerability via differential responses](#http-request-smuggling-confirming-a-clte-vulnerability-via-differential-responses)
-- [HTTP request smuggling, confirming a TE.CL vulnerability via differential responses](#http-request-smuggling-confirming-a-tecl-vulnerability-via-differential-responses)
-- [Exploiting HTTP request smuggling to bypass front-end security controls, CL.TE vulnerability](#exploiting-http-request-smuggling-to-bypass-front-end-security-controls-clte-vulnerability)
-- [Exploiting HTTP request smuggling to bypass front-end security controls, TE.CL vulnerability](#exploiting-http-request-smuggling-to-bypass-front-end-security-controls-tecl-vulnerability)
-- [Exploiting HTTP request smuggling to reveal front-end request rewriting](#exploiting-http-request-smuggling-to-reveal-front-end-request-rewriting)
-- [Exploiting HTTP request smuggling to capture other users' requests](#exploiting-http-request-smuggling-to-capture-other-users-requests)
-- [Exploiting HTTP request smuggling to deliver reflected XSS](#exploiting-http-request-smuggling-to-deliver-reflected-xss)
-- [Response queue poisoning via H2.TE request smuggling](#response-queue-poisoning-via-h2te-request-smuggling)
-- [HTTP request smuggling, basic CL.TE vulnerability](#http-request-smuggling-basic-clte-vulnerability)
-- [HTTP request smuggling, basic TE.CL vulnerability](#http-request-smuggling-basic-tecl-vulnerability)
-- [HTTP request smuggling, obfuscating the TE header](#http-request-smuggling-obfuscating-the-te-header)
-- [CL.0 request smuggling](#cl0-request-smuggling)
-- [H2.CL request smuggling](#h2cl-request-smuggling)
-- [HTTP/2 request smuggling via CRLF injection](#http2-request-smuggling-via-crlf-injection)
-- [HTTP/2 request splitting via CRLF injection](#http2-request-splitting-via-crlf-injection)
-<!-- /TOC -->
 
 Các cuộc tấn công request smuggling cổ điển liên quan đến việc đặt cả header **`Content-Length`** và **`Transfer-Encoding`** vào cùng một yêu cầu HTTP/1 và điều chỉnh chúng sao cho máy chủ phía trước và phía sau xử lý yêu cầu theo cách khác nhau. Cách chính xác thực hiện điều này phụ thuộc vào hành vi của hai máy chủ:
 
@@ -1542,6 +1513,7 @@ Chúng ta đã từng xem qua một số kỹ thuật **làm nhiễu header (hea
 Bạn có thể lợi dụng lỗ hổng CL.0 để thực hiện cùng các cuộc tấn công request smuggling phía máy chủ mà chúng ta đã đề cập trong các tài liệu request smuggling trước đó. Hãy thử điều này với lab sau.
 
 
+
 ### H2.0
 
 ---
@@ -2257,6 +2229,7 @@ Foo: x
 ```
 
 Tóm lại: Khi body chứa GET /hopefully404, response của request thứ hai trả 404, chứng minh body của request đầu bị bỏ lại và được xử lý như prefix của request sau. Sau đó tôi đổi request smuggled thành GET /admin để truy cập admin panel, rồi đổi thành GET /admin/delete?username=carlos để xóa user Carlos.
+
 
 
 ## H2.CL request smuggling

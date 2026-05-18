@@ -1,4 +1,45 @@
+```table-of-contents
+```
+# SSRF
+## Khái niệm
 
+---
+
+Server-side request forgery là một lỗ hổng bảo mật web cho phép kẻ tấn công khiến ứng dụng phía máy chủ thực hiện các yêu cầu tới những đích không mong muốn.
+
+Trong một cuộc tấn công SSRF điển hình, kẻ tấn công có thể khiến máy chủ thiết lập kết nối tới các dịch vụ chỉ dành cho nội bộ trong hạ tầng của tổ chức. Ở các trường hợp khác, họ có thể buộc máy chủ kết nối tới các hệ thống bên ngoài tùy ý. Điều này có thể làm rò rỉ dữ liệu nhạy cảm, chẳng hạn như thông tin xác thực ủy quyền.
+
+![](../../image/Pasted%20image%2020260502041000.png)
+
+---
+
+## Hậu quả
+
+---
+
+Một cuộc tấn công SSRF thành công thường có thể dẫn đến các hành động trái phép hoặc truy cập dữ liệu trong nội bộ tổ chức. Điều này có thể xảy ra trong chính ứng dụng dễ bị tổn thương, hoặc trên các hệ thống backend khác mà ứng dụng có thể giao tiếp. Trong một số tình huống, lỗ hổng SSRF có thể cho phép kẻ tấn công thực thi lệnh tùy ý.
+
+Một khai thác SSRF khiến máy chủ tạo kết nối tới các hệ thống bên thứ ba bên ngoài có thể dẫn đến các cuộc tấn công độc hại tiếp theo. Những cuộc tấn công này có thể trông như bắt nguồn từ tổ chức đang lưu trữ ứng dụng dễ bị tấn công.
+
+---
+
+## Tấn công SSRF
+
+---
+
+Các cuộc tấn công SSRF thường lợi dụng các mối quan hệ tin cậy để leo thang từ ứng dụng dễ bị tổn thương và thực hiện các hành động trái phép. Những mối quan hệ tin cậy này có thể tồn tại đối với chính máy chủ hoặc đối với các hệ thống backend khác trong cùng một tổ chức.
+
+---
+
+### Server
+
+---
+
+Trong một cuộc tấn công SSRF nhắm vào máy chủ, kẻ tấn công khiến ứng dụng thực hiện một yêu cầu HTTP quay trở lại chính máy chủ đang lưu trữ ứng dụng thông qua giao diện mạng loopback. Điều này thường liên quan đến việc cung cấp một URL có tên máy chủ (hostname) như 127.0.0.1 (một địa chỉ IP dành riêng trỏ đến bộ điều hợp loopback) hoặc localhost (tên thường dùng cho cùng bộ điều hợp).
+
+Ví dụ, hãy hình dung một ứng dụng mua sắm cho phép người dùng xem một mặt hàng có còn trong kho tại một cửa hàng cụ thể hay không. Để cung cấp thông tin tồn kho, ứng dụng phải truy vấn nhiều REST API backend khác nhau. Ứng dụng làm điều này bằng cách truyền URL đến endpoint API backend liên quan thông qua một yêu cầu HTTP từ phía frontend. Khi người dùng xem trạng thái tồn kho của một mặt hàng, trình duyệt của họ thực hiện yêu cầu sau:
+
+```
 POST /product/stock HTTP/1.0
 Content-Type: application/x-www-form-urlencoded
 Content-Length: 118
@@ -211,31 +252,6 @@ Một số ứng dụng sử dụng phần mềm phân tích (analytics) phía m
 Do đó, **Referer header** thường là một bề mặt tấn công hữu ích cho lỗ hổng SSRF.
 
 # WU
-
-<!-- TOC -->
-## Mục lục
-
-  - [Back-end System](#back-end-system)
-- [Bảo mật](#bảo-mật)
-  - [**Blacklist-based input filters**](#blacklist-based-input-filters)
-  - [**Whitelist-based input filters**](#whitelist-based-input-filters)
-  - [Open redirection](#open-redirection)
-- [Blind SSRF](#blind-ssrf)
-  - [Khái niệm](#khái-niệm)
-  - [Hậu quả](#hậu-quả)
-  - [Nhận biết](#nhận-biết)
-  - [Tìm bề mặt tấn công ẩn](#tìm-bề-mặt-tấn-công-ẩn)
-    - [URL - part](#url---part)
-    - [URL in data](#url-in-data)
-    - [Referer header](#referer-header)
-- [Basic SSRF against the local server](#basic-ssrf-against-the-local-server)
-- [Basic SSRF against against another back-end system](#basic-ssrf-against-against-another-back-end-system)
-- [Blind SSRF with out-of-band detection](#blind-ssrf-with-out-of-band-detection)
-- [SSRF with blacklist-based input filter](#ssrf-with-blacklist-based-input-filter)
-- [SSRF with filter bypass via open redirection vulnerability](#ssrf-with-filter-bypass-via-open-redirection-vulnerability)
-- [Blind SSRF with Shellshock exploitation](#blind-ssrf-with-shellshock-exploitation)
-- [SSRF with whitelist-based input filter](#ssrf-with-whitelist-based-input-filter)
-<!-- /TOC -->
 - [x] Basic SSRF against the local server
 - [x] Basic SSRF against another back-end system
 - [x] SSRF with blacklist-based input filter

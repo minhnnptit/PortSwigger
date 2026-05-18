@@ -1,4 +1,37 @@
-java
+```table-of-contents
+```
+# Nhìn chung
+
+Chúng tôi thiết kế các bài lab cho Web Security Academy sao cho thực tế nhất có thể, nhưng bạn cần lưu ý rằng mỗi bài lab chỉ minh họa một biến thể khả dĩ của một lỗ hổng nhất định. Trên thực tế, việc quan trọng là phải nhận diện những biểu hiện hơi khác nhau của cùng một lỗi gốc và biết cách điều chỉnh các kỹ thuật bạn đã học cho phù hợp.
+
+Trong phần này, bạn sẽ học một số kỹ năng có phạm vi áp dụng rộng giúp bạn đưa những gì đã học từ các bài lab của chúng tôi vào các mục tiêu thực tế khác. Chúng tôi đề cập đến nhiều mẹo và thủ thuật tổng quát, cũng như cách sử dụng một số tính năng ít được biết đến của Burp để tối ưu quy trình làm việc của bạn. Chúng tôi cũng cung cấp một số bài lab bổ sung để bạn có thể tự tay thử nghiệm chúng.
+
+Chúng tôi dự định mở rộng phần này để bao quát thêm nhiều kỹ năng thiết yếu trong tương lai gần.
+
+# Obfuscating
+
+
+Trong phần này, chúng tôi sẽ chỉ cho bạn cách tận dụng quá trình giải mã tiêu chuẩn mà các website thực hiện để né tránh bộ lọc đầu vào và chèn các payload độc hại cho nhiều kiểu tấn công, chẳng hạn như XSS và SQL injection.
+
+## **Context-specific decoding**
+
+Cả client và server sử dụng nhiều kiểu mã hóa khác nhau để truyền dữ liệu giữa các hệ thống. Khi cần thực sự dùng dữ liệu, họ thường phải giải mã nó trước. Trình tự chính xác của các bước giải mã được thực hiện phụ thuộc vào ngữ cảnh mà dữ liệu xuất hiện. Ví dụ, một tham số truy vấn thường được URL decode ở phía server, trong khi nội dung văn bản của một phần tử HTML có thể được HTML decode ở phía client.
+
+Khi xây dựng một cuộc tấn công, bạn nên cân nhắc chính xác nơi payload của mình được chèn vào. Nếu có thể suy ra cách đầu vào của bạn được giải mã dựa trên ngữ cảnh này, bạn có thể xác định các cách thay thế để biểu diễn cùng một payload.
+
+## **Decoding discrepancies**
+
+Các cuộc tấn công chèn mã thường sử dụng payload mang các mẫu dễ nhận diện, chẳng hạn thẻ HTML, hàm JavaScript hoặc câu lệnh SQL. Vì các đầu vào cho những payload này hầu như không được mong đợi chứa mã hay đánh dấu do người dùng cung cấp, các website thường triển khai các biện pháp phòng vệ để chặn những yêu cầu chứa các mẫu đáng ngờ đó.
+
+Tuy nhiên, những bộ lọc đầu vào này cũng cần phải giải mã dữ liệu để kiểm tra xem nó có an toàn hay không. Về mặt bảo mật, điều quan trọng là quá trình giải mã dùng để kiểm tra đầu vào phải giống hệt quá trình giải mã mà máy chủ back-end hoặc trình duyệt thực hiện khi cuối cùng sử dụng dữ liệu. Bất kỳ sự khác biệt nào cũng có thể cho phép kẻ tấn công luồn các payload độc hại qua bộ lọc bằng cách áp dụng những mã hóa khác nhau sẽ được loại bỏ tự động ở bước sau.
+
+## URL Encoding
+
+Trong URL, một loạt ký tự dành riêng mang ý nghĩa đặc biệt. Ví dụ, ký tự ampersand (`&`) được dùng làm ký tự phân tách để tách các tham số trong chuỗi truy vấn. Vấn đề là, các đầu vào dựa trên URL có thể chứa những ký tự này vì lý do khác. Hãy nghĩ đến một tham số chứa truy vấn tìm kiếm của người dùng. Chuyện gì sẽ xảy ra nếu người dùng tìm kiếm thứ gì đó như "Fish & Chips"?
+
+Trình duyệt tự động mã hóa URL bất kỳ ký tự nào có thể gây mơ hồ cho bộ phân tích. Điều này thường có nghĩa là thay thế chúng bằng ký tự `%` và mã hex 2 chữ số tương ứng như sau:
+
+```java
 [...]/?search=Fish+%26+Chips
 ```
 
@@ -155,24 +188,6 @@ CHAR(83)+CHAR(69)+CHAR(76)+CHAR(69)+CHAR(67)+CHAR(84)
 
 Tuy nhiên, khi đoạn này được xử lý như SQL bởi ứng dụng, nó sẽ động cấu thành từ khóa `SELECT` và thực thi truy vấn đã chèn.
 # Burp Scanner
-
-<!-- TOC -->
-## Mục lục
-
-- [Double URL Encoding](#double-url-encoding)
-- [HTML Encoding](#html-encoding)
-- [XML Encoding](#xml-encoding)
-- [Unicode Escaping](#unicode-escaping)
-- [Hex Escaping](#hex-escaping)
-- [Octal Escaping](#octal-escaping)
-- [Multiple Encodings](#multiple-encodings)
-- [SQL CHAR()](#sql-char)
-- [**Scanning a specific request**](#scanning-a-specific-request)
-- [**Scanning custom insertion points**](#scanning-custom-insertion-points)
-- [**Scanning non-standard data structures**](#scanning-non-standard-data-structures)
-- [Discovering vulnerabilities quickly with targeted scanning](#discovering-vulnerabilities-quickly-with-targeted-scanning)
-- [Scanning non-standard data structures](#scanning-non-standard-data-structures-1)
-<!-- /TOC -->
 
 Trong phần này, chúng tôi sẽ chỉ cho bạn một số cách để tối ưu hóa quy trình kiểm thử thủ công bằng cách sử dụng Burp Scanner như một công cụ bổ trợ cho kiến thức và trực giác của bạn. Điều này không chỉ giúp bạn bao quát nhiều mục tiêu hơn, mà còn cho phép bạn dành thời gian ở những chỗ thực sự quan trọng thay vì phải lao vào những công việc chuẩn bị nhàm chán.
 

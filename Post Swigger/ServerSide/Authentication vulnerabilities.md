@@ -1,4 +1,91 @@
+```table-of-contents
+```
 
+# Authentication vulnerabilities
+#### Authentication là gì?
+Xác thực là quá trình xác minh danh tính của người dùng, khách hàng.  Các websites có tiềm năng bị xâm nhập bởi bất kì ai kết nối tới internet. Điều này khiến cho các cơ chế xác thực mạnh mẽ trở thành 1 phần thiết yếu trong bảo mật web
+
+Có 3 loại xác thực chính:
+- **something you know** - thứ bạn biết: như là mật khẩu, câu trả lời cho câu hỏi bảo mật. Loại này gọi là **yếu tố tri thức - knowledge factors**
+- **something you have - thứ bạn sở hữu**: một vật thể vật lí như là điện thoại hoặc token bảo mật. Loại này gọi là yếu tố sở hữu - **possesions factors**.
+- **something you are or do - thứ bạn là hoặc làm**: ví dụ, sinh trắc học, các mẫu hành vi. Loại này gọi là **yếu tố vốn có**
+
+#### khác biệt giữa xác thực và phân quyền : authentication vs authorization
+- **authentication** là quá trình xác minh 1 người dùng đúng là người họ khai báo
+- **authorization** tham gia vào việc xác minh 1 người dùng có quyền hoặc được phép làm gì đó hay ko
+ví dụ: xác thực xác định xem ai đó cố gắng truy cập với username là **carlos123** có thực sự đúng là người đó tạo tài khoản hay ko. một khi xác minh xong, quyền của họ xác định những thứ mà họ có quyền làm. ví dụ, họ có quyền truy cập thông tin cá nhận của người dùng khác, hoặc có thể xóa tài khoản người dùng khác.
+
+#### nguyên nhân phát sinh lỗ hổng xác thực
+hầu hết lỗ hổng trong cơ chế xác thực xảy ra dưới 2 con đường:
+- cơ chế xác thực yếu vì họ thất bại trong các cuộc tấn công bruteforce
+- lỗi logic hoặc lập trình kém trong quá trình triển khai cho phép cơ chế xác thực bị vượt qua hầu hết bởi các hacker. Đây là những lỗi gọi chung là: **broken authentication**
+trong rất nhiều khía cạnh phát triển web, các lỗi logic là nguyên nhân dẫn tới website hành xử lạ ngoài mong đợi, đôi khi ko phải là vấn đề bảo mật. tuy nhiên, vì xác thực có vài trò tối quan trọng trong bảo mật, nên các lỗi logic bảo mật xác thực gần như chắc chắn sẽ khiến các website dễ bị khai thác
+
+#### tác động của lỗ hổng xác thực
+hậu quả của lỗ hổng này có thể rất nghiêm trọng. 
+- nếu 1 kẻ tấn công có thể vượt qua xác thực hoặc bruteforce theo cách của họ vào được tài khoản của người dùng khác, họ có thể truy cập dữ liệu và chức năng mà tài khoản bị chiếm đoạt sở hữu. 
+- Nếu họ có thể xâm phạm 1 tài khoản có đặc quyền cao, chẳng hạn như quản trị viên hệ thống, họ có thể kiểm soát hoàn toàn phần còn lại của ứng dụng và có khả năng truy cập vào cơ sở hạ tầng nội bộ.
+- Ngay cả khi chiếm quyền 1 tài khoản có quyền thấp, vẫn có khả năng kẻ tấn công truy cập đc vào dữ liệu họ ko đc phép, như là thông tin kinh doanh nhạy cảm.
+- kể cả khi 1 tài khoản ko có quyền nào truy cập dữ liệu nhạy cảm, vẫn có khả năng kẻ tấn công truy cập được những trang khác, có thể cung cấp attacker surface mới.
+- trong nhiều TH, các cuộc tấn công có mức độ nghiêm trọng ko khả thi trong việc truy cập từ các trang public, nhưng họ có thể tấn công từ các trang nội bộ.
+### lỗ hổng trong trong cơ chế xác thực
+1 hệ thống xác thực của website thường bao gồm một số cơ chế riêng biệt có thể xảy ra các lỗ hổng.
+#### lỗ hổng trong password-base login
+đối với các trang web sử dụng cơ chế login bằng password, người dùng đăng kí 1 tài khoản hoặc quản trị viên cung cấp. trong bối cảnh này, việc người dùng biết mật khẩu đc coi là đủ để chứng minh danh tính của họ. điều này nghĩa là bảo mật của website sẽ bị ảnh hướng nếu kẻ tấn công có thể lấy cắp hoặc đoán thông tin đăng nhập của user khác. Bằng một số cách như:
+- **bruteforce attack**: kẻ tấn công sử dụng phuong pháp thử và sai để đoán thông tin của user. kiểu tấn công này thường đc tự động hóa với wordlists username và password bằng các tool chuyên dụng. nếu có 1 số thông tin của mục tiêu, có thể tinh chỉnh wordlist
+- **username enumeration**: xảy ra khi kẻ tấn công có thể quan sát sự thay đổi trong hành vi website để xác định xem 1 username nào đó có hợp lệ hay ko. khi bruteforce cần chú ý 1 số điểm như:
+	- **status code**: Trong quá trình brute-force, hầu hết các thử sai sẽ trả về cùng một HTTP status code. Nếu một lần thử trả về mã trạng thái khác, đây là dấu hiệu mạnh cho thấy username đó đúng. Best practice là website nên luôn trả về cùng một status code bất kể kết quả, nhưng thực tế điều này không phải lúc nào cũng được tuân thủ.
+	- **thông báo lỗi**: Đôi khi thông báo lỗi khác nhau tùy thuộc vào việc cả username và password đều sai, hay chỉ password sai. Best practice là website nên hiển thị thông báo giống nhau, dạng chung chung cho cả hai trường hợp, nhưng lỗi gõ (typo) nhỏ có thể xuất hiện. Chỉ cần một ký tự khác biệt, dù không hiển thị rõ trên trang, cũng khiến hai thông báo trở nên khác nhau.
+	- **response time**: Nếu hầu hết các request có thời gian xử lý tương tự, bất kỳ request nào lệch đáng kể đều gợi ý rằng có điều gì khác đang diễn ra phía backend. Đây là một dấu hiệu khác cho thấy username được đoán có thể đúng. Ví dụ: một website có thể chỉ kiểm tra password nếu username hợp lệ. Bước kiểm tra thêm này có thể khiến thời gian phản hồi tăng lên một chút. Mặc dù khác biệt này thường rất nhỏ, nhưng kẻ tấn công có thể làm rõ độ trễ bằng cách nhập một mật khẩu quá dài khiến website mất nhiều thời gian xử lý hơn.
+	2 cách phổ biến ngăn bruteforce là:
+	- **khóa tài khoản**: nếu truy cập sai quá nhiều
+	- **chặn ip**: nếu quá nhiều request trong thời gian ngắn
+- **IP locking**: 
+Ví dụ:
+
+- Trong một số hệ thống, IP của bạn có thể bị chặn nếu đăng nhập sai quá nhiều lần.
+- Tuy nhiên, bộ đếm số lần đăng nhập sai có thể **được reset nếu IP đó đăng nhập thành công**.
+
+Điều này đồng nghĩa với việc kẻ tấn công chỉ cần **thỉnh thoảng đăng nhập vào tài khoản của chính chúng** trong quá trình brute-force để tránh chạm đến giới hạn.
+
+Trong trường hợp này, chỉ cần **chèn thông tin đăng nhập hợp lệ của bản thân vào wordlist theo chu kỳ**, kẻ tấn công đã có thể **vô hiệu hóa gần như hoàn toàn biện pháp phòng thủ này**.
+- **Account locking**: 
+Một cách mà website thường sử dụng để ngăn chặn brute-force là **khóa tài khoản** nếu phát hiện các tiêu chí nghi ngờ, thường là khi có một số lần đăng nhập sai vượt quá giới hạn cho phép.
+
+Tuy nhiên, cũng giống như lỗi đăng nhập thông thường, các phản hồi từ server báo rằng một tài khoản đã bị khóa có thể giúp kẻ tấn công **liệt kê (enumerate) username hợp lệ**.
+
+Việc khóa tài khoản mang lại một mức độ bảo vệ nhất định đối với các cuộc brute-force **nhắm mục tiêu vào một tài khoản cụ thể**. Nhưng phương pháp này lại **không hiệu quả** trong việc ngăn chặn các cuộc brute-force mà kẻ tấn công chỉ đơn giản là muốn chiếm quyền truy cập vào **bất kỳ tài khoản nào**.
+
+Ví dụ, kẻ tấn công có thể sử dụng phương pháp sau để **vượt qua biện pháp bảo vệ này**:
+
+1. **Xây dựng danh sách username tiềm năng** có khả năng hợp lệ. Điều này có thể thực hiện bằng cách **username enumeration** hoặc đơn giản là dựa vào danh sách các username phổ biến.
+2. **Chọn một danh sách mật khẩu rút gọn** (rất ít) mà bạn cho rằng ít nhất một người dùng sẽ sử dụng. Quan trọng là **số lượng mật khẩu chọn không được vượt quá số lần thử đăng nhập tối đa cho phép**. Ví dụ: nếu giới hạn là **3 lần thử**, bạn chỉ được chọn tối đa **3 mật khẩu**.
+3. Sử dụng công cụ như **Burp Intruder**, thử lần lượt từng mật khẩu đã chọn với từng username trong danh sách.
+
+Bằng cách này, bạn có thể **brute-force trên toàn bộ danh sách tài khoản** mà **không kích hoạt khóa tài khoản**. Bạn chỉ cần **một người dùng** sử dụng một trong ba mật khẩu đã chọn là đã có thể **chiếm đoạt được tài khoản**.
+
+Khóa tài khoản cũng **không thể bảo vệ** trước các cuộc tấn công **credential stuffing**.
+
+- **Credential stuffing** là hình thức sử dụng một **dictionary khổng lồ chứa các cặp username:password thật**, vốn bị đánh cắp trong các vụ rò rỉ dữ liệu.
+- Kiểu tấn công này dựa vào thực tế rằng nhiều người có thói quen **tái sử dụng cùng một username và mật khẩu trên nhiều website khác nhau**. Do đó, luôn có khả năng một số thông tin đăng nhập trong dictionary sẽ hợp lệ trên website mục tiêu.
+
+Cơ chế khóa tài khoản không ngăn chặn được credential stuffing, vì mỗi username trong dictionary chỉ bị thử **một lần duy nhất**.
+
+Credential stuffing đặc biệt nguy hiểm vì đôi khi nó có thể giúp kẻ tấn công **chiếm đoạt nhiều tài khoản khác nhau chỉ bằng một cuộc tấn công tự động duy nhất**.- 
+
+### HTTP Basic Authentication
+
+---
+
+Mặc dù khá cũ, nhưng do có **tính đơn giản** và **dễ triển khai**, nên đôi khi bạn vẫn có thể bắt gặp cơ chế **HTTP Basic Authentication** được sử dụng.
+
+Trong HTTP Basic Authentication:
+
+- Client nhận một **authentication token** từ server.
+- Token này được tạo bằng cách **nối (concatenate) username và password**, sau đó **mã hóa bằng Base64**.
+- Token được trình duyệt lưu trữ và quản lý, rồi **tự động thêm vào header `Authorization` của mọi request tiếp theo**, theo định dạng sau:
+
+```
 Authorization: Basic base64(username:password)
 ```
 
@@ -273,40 +360,6 @@ Ví dụ: nếu **username** được truyền trong một **trường ẩn (hid
 ---
 
 # Ngăn chặn
-
-<!-- TOC -->
-## Mục lục
-
-- [**Multi-factor authentication**](#multi-factor-authentication)
-  - [**Two-factor authentication tokens**](#two-factor-authentication-tokens)
-  - [Flawed two-factor verification logic](#flawed-two-factor-verification-logic)
-  - [**Brute-forcing 2FA verification codes**](#brute-forcing-2fa-verification-codes)
-- [**Other authentication mechanisms**](#other-authentication-mechanisms)
-  - [Keeping users logged in](#keeping-users-logged-in)
-  - [**Resetting user passwords**](#resetting-user-passwords)
-  - [Changing user passwords](#changing-user-passwords)
-- [User credentials](#user-credentials)
-- [Don’t count on users](#dont-count-on-users)
-- [**Prevent username enumeration**](#prevent-username-enumeration)
-- [**Implement robust brute-force protection**](#implement-robust-brute-force-protection)
-- [**Triple-check your verification logic**](#triple-check-your-verification-logic)
-- [**Don't forget supplementary functionality**](#dont-forget-supplementary-functionality)
-- [**Implement proper multi-factor authentication**](#implement-proper-multi-factor-authentication)
-- [Username enumeration via different responses](#username-enumeration-via-different-responses)
-- [2FA simple bypass](#2fa-simple-bypass)
-- [Password reset broken logic](#password-reset-broken-logic)
-- [Username enumeration via subtly different responses](#username-enumeration-via-subtly-different-responses)
-- [Username enumeration via response timing](#username-enumeration-via-response-timing)
-- [Broken brute-force protection, IP block](#broken-brute-force-protection-ip-block)
-- [Username enumeration via account lock](#username-enumeration-via-account-lock)
-- [2FA broken logic](#2fa-broken-logic)
-- [Brute-forcing a stay-logged-in cookie](#brute-forcing-a-stay-logged-in-cookie)
-- [Offline password cracking](#offline-password-cracking)
-- [Password reset poisoning via middleware](#password-reset-poisoning-via-middleware)
-- [Password brute-force via password change](#password-brute-force-via-password-change)
-- [Broken brute-force protection, multiple credentials per request](#broken-brute-force-protection-multiple-credentials-per-request)
-- [2FA bypass using a brute-force attack](#2fa-bypass-using-a-brute-force-attack)
-<!-- /TOC -->
 
 ---
 

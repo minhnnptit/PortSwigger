@@ -1,4 +1,14 @@
-text
+```table-of-contents
+```
+# Prototype Pollution 
+
+## 1. Prototype Pollution là gì?
+
+**Prototype Pollution** là lỗ hổng trong JavaScript cho phép attacker **thêm hoặc sửa property vào prototype chung của object**.
+
+Khi prototype bị “ô nhiễm”, các object khác trong ứng dụng có thể **tự động kế thừa property độc hại** đó. Nếu ứng dụng có đoạn code đọc property này để quyết định hành vi bảo mật, attacker có thể gây ra lỗi như:
+
+```text
 DOM XSS
 Privilege escalation
 Bypass logic
@@ -1173,72 +1183,6 @@ Validate input + block dangerous keys + use safe objects + check own properties
 
 
 # WU
-
-<!-- TOC -->
-## Mục lục
-
-- [2. Cần hiểu Prototype trong JavaScript trước](#2-cần-hiểu-prototype-trong-javascript-trước)
-- [3. `__proto__`, `constructor`, `prototype` là gì?](#3-__proto__-constructor-prototype-là-gì)
-  - [3.1. `__proto__`](#31-__proto__)
-  - [3.2. `constructor.prototype`](#32-constructorprototype)
-- [4. Prototype Pollution xảy ra khi nào?](#4-prototype-pollution-xảy-ra-khi-nào)
-- [5. Ba khái niệm quan trọng: Source, Sink, Gadget](#5-ba-khái-niệm-quan-trọng-source-sink-gadget)
-  - [5.1. Source là gì?](#51-source-là-gì)
-  - [5.2. Gadget là gì?](#52-gadget-là-gì)
-  - [5.3. Sink là gì?](#53-sink-là-gì)
-- [6. Ví dụ đầy đủ: từ Source đến Sink](#6-ví-dụ-đầy-đủ-từ-source-đến-sink)
-- [7. Client-side Prototype Pollution](#7-client-side-prototype-pollution)
-  - [7.1. Dấu hiệu client-side prototype pollution](#71-dấu-hiệu-client-side-prototype-pollution)
-  - [7.2. Payload client-side thường dùng](#72-payload-client-side-thường-dùng)
-  - [7.3. Client-side impact phổ biến](#73-client-side-impact-phổ-biến)
-- [8. Server-side Prototype Pollution](#8-server-side-prototype-pollution)
-  - [8.1. Vì sao server-side khó detect hơn?](#81-vì-sao-server-side-khó-detect-hơn)
-  - [8.2. Payload server-side thường gặp](#82-payload-server-side-thường-gặp)
-- [9. Prototype Pollution trong object merge](#9-prototype-pollution-trong-object-merge)
-- [10. Prototype Pollution không phải lúc nào cũng exploitable](#10-prototype-pollution-không-phải-lúc-nào-cũng-exploitable)
-- [11. Các gadget hay gặp phía client](#11-các-gadget-hay-gặp-phía-client)
-  - [11.1. Script URL gadget](#111-script-url-gadget)
-  - [11.2. Iframe `srcdoc` gadget](#112-iframe-srcdoc-gadget)
-  - [11.3. HTML injection gadget](#113-html-injection-gadget)
-  - [11.4. Fetch URL gadget](#114-fetch-url-gadget)
-- [12. Các gadget hay gặp phía server](#12-các-gadget-hay-gặp-phía-server)
-  - [12.1. Privilege escalation](#121-privilege-escalation)
-  - [12.2. Status code override](#122-status-code-override)
-  - [12.3. JSON spacing override](#123-json-spacing-override)
-  - [12.4. RCE gadget](#124-rce-gadget)
-- [13. Cách test Prototype Pollution](#13-cách-test-prototype-pollution)
-  - [13.1. Test client-side cơ bản](#131-test-client-side-cơ-bản)
-  - [13.2. Test nhiều dạng payload](#132-test-nhiều-dạng-payload)
-  - [13.3. Test server-side](#133-test-server-side)
-- [14. Cách tìm source trong code](#14-cách-tìm-source-trong-code)
-- [15. Cách tìm gadget trong code](#15-cách-tìm-gadget-trong-code)
-- [16. Cách phòng chống Prototype Pollution](#16-cách-phòng-chống-prototype-pollution)
-  - [16.1. Chặn key nguy hiểm](#161-chặn-key-nguy-hiểm)
-  - [16.2. Dùng object không có prototype](#162-dùng-object-không-có-prototype)
-  - [16.3. Dùng `Map` thay vì object thường](#163-dùng-map-thay-vì-object-thường)
-  - [16.4. Validate schema input](#164-validate-schema-input)
-  - [16.5. Tránh recursive merge không an toàn](#165-tránh-recursive-merge-không-an-toàn)
-  - [16.6. Dùng `Object.hasOwn()`](#166-dùng-objecthasown)
-  - [16.7. Freeze prototype trong một số môi trường](#167-freeze-prototype-trong-một-số-môi-trường)
-- [17. Checklist học Prototype Pollution](#17-checklist-học-prototype-pollution)
-- [18. Các payload nền tảng cần nhớ](#18-các-payload-nền-tảng-cần-nhớ)
-  - [Client-side query](#client-side-query)
-  - [Client-side hash](#client-side-hash)
-  - [JSON body](#json-body)
-  - [Dot path](#dot-path)
-  - [Constructor path](#constructor-path)
-- [19. Mẫu writeup lý thuyết ngắn](#19-mẫu-writeup-lý-thuyết-ngắn)
-- [20. Tóm tắt cực ngắn](#20-tóm-tắt-cực-ngắn)
-- [Client-side prototype pollution via browser APIs](#client-side-prototype-pollution-via-browser-apis)
-- [DOM XSS via client-side prototype pollution](#dom-xss-via-client-side-prototype-pollution)
-- [DOM XSS via an alternative prototype pollution vector](#dom-xss-via-an-alternative-prototype-pollution-vector)
-- [Client-side prototype pollution via flawed sanitization](#client-side-prototype-pollution-via-flawed-sanitization)
-- [Client-side prototype pollution in third-party libraries](#client-side-prototype-pollution-in-third-party-libraries)
-- [Privilege escalation via server-side prototype pollution](#privilege-escalation-via-server-side-prototype-pollution)
-- [Detecting server-side prototype pollution without polluted property reflection](#detecting-server-side-prototype-pollution-without-polluted-property-reflection)
-- [Bypassing flawed input filters for server-side prototype pollution](#bypassing-flawed-input-filters-for-server-side-prototype-pollution)
-- [Remote code execution via server-side prototype pollution](#remote-code-execution-via-server-side-prototype-pollution)
-<!-- /TOC -->
 - [x] Client-side prototype pollution via browser APIs
 - [x] DOM XSS via an alternative prototype pollution vector
 - [x] Client-side prototype pollution via browser APIs

@@ -1,4 +1,50 @@
-xml
+```table-of-contents
+```
+
+# Giới thiệu
+
+
+XML external entity injection (còn được gọi là XXE) là một lỗ hổng bảo mật web cho phép kẻ tấn công can thiệp vào quá trình ứng dụng xử lý dữ liệu XML. Nó thường cho phép kẻ tấn công xem các tệp trên hệ thống tệp của máy chủ ứng dụng, và tương tác với bất kỳ hệ thống back-end hoặc hệ thống bên ngoài nào mà chính ứng dụng có thể truy cập.
+
+Trong một số tình huống, kẻ tấn công có thể leo thang một cuộc tấn công XXE để xâm phạm máy chủ nền tảng hoặc cơ sở hạ tầng back-end khác, bằng cách lợi dụng lỗ hổng XXE để thực hiện các cuộc tấn công giả mạo yêu cầu phía máy chủ (SSRF).
+![](../../image/Pasted%20image%2020260502164756.png)
+# XXE
+
+
+## XML là gì?
+
+
+XML viết tắt của “Extensible Markup Language” (ngôn ngữ đánh dấu mở rộng). XML là một ngôn ngữ được thiết kế để lưu trữ và truyền tải dữ liệu. Giống như HTML, XML sử dụng cấu trúc dạng cây gồm các thẻ (tag) và dữ liệu. Khác với HTML, XML không dùng các thẻ được định nghĩa sẵn, vì vậy các thẻ có thể được đặt tên để mô tả dữ liệu. Trước đây trong lịch sử web, XML từng thịnh hành như một định dạng truyền tải dữ liệu (chữ “X” trong “AJAX” là viết tắt của “XML”). Nhưng hiện nay độ phổ biến của nó đã suy giảm, nhường chỗ cho định dạng JSON.
+
+## XML entities là gì?
+
+
+XML entities là một cách biểu diễn một mục dữ liệu trong tài liệu XML thay vì sử dụng trực tiếp dữ liệu đó. Trong đặc tả của ngôn ngữ XML có sẵn nhiều entity được định nghĩa.
+
+Ví dụ, các entity `&lt;` và `&gt;` lần lượt đại diện cho các ký tự `<` và `>`. Đây là các metacharacter dùng để đánh dấu thẻ XML, nên thường phải được biểu diễn thông qua entity khi chúng xuất hiện trong dữ liệu.
+
+
+## Document Type Definition là gì?
+
+---
+
+Document Type Definition (DTD) trong XML chứa các khai báo dùng để định nghĩa cấu trúc của một tài liệu XML, các kiểu giá trị dữ liệu mà nó có thể chứa, và những thành phần khác.
+
+DTD được khai báo trong phần tử tùy chọn **DOCTYPE** ở đầu tài liệu XML.
+
+- Nếu DTD được chứa hoàn toàn trong chính tài liệu, nó được gọi là **internal DTD** (DTD nội bộ).
+- Nếu DTD được tải từ bên ngoài, nó được gọi là **external DTD** (DTD bên ngoài).
+- Ngoài ra, cũng có thể sử dụng kiểu **lai (hybrid DTD)**, tức là kết hợp cả nội bộ và bên ngoài.
+
+---
+
+## XML custom entities là gì?
+
+---
+
+XML cho phép định nghĩa các thực thể (entity) tùy chỉnh trong DTD. Ví dụ:
+
+```xml
 <!DOCTYPE foo [ <!ENTITY myentity "my entity value" > ]>
 ```
 
@@ -29,32 +75,6 @@ XML external entities chính là phương thức chủ yếu dẫn đến các c
 ---
 
 # Nguyên nhân
-
-<!-- TOC -->
-## Mục lục
-
-- [XML external entities là gì?](#xml-external-entities-là-gì)
-- [**Khai thác XXE để đọc tệp từ máy chủ**](#khai-thác-xxe-để-đọc-tệp-từ-máy-chủ)
-- [SSRF](#ssrf)
-- [Blind XXE](#blind-xxe)
-  - [OAST](#oast)
-  - [Khai thác dữ liệu bằng OAST](#khai-thác-dữ-liệu-bằng-oast)
-  - [Khai thác dữ liệu bằng Error](#khai-thác-dữ-liệu-bằng-error)
-- [Tái sử dụng DTD cục bộ](#tái-sử-dụng-dtd-cục-bộ)
-- [**XInclude attacks**](#xinclude-attacks)
-- [XXE thông qua file upload](#xxe-thông-qua-file-upload)
-- [XXE thông qua sửa đổi Content-Type](#xxe-thông-qua-sửa-đổi-content-type)
-- [Exploiting XXE using external entities to retrieve files](#exploiting-xxe-using-external-entities-to-retrieve-files)
-- [Exploiting XXE to perform SSRF attacks](#exploiting-xxe-to-perform-ssrf-attacks)
-- [Blind XXE with out-of-band interaction](#blind-xxe-with-out-of-band-interaction)
-- [Blind XXE with out-of-band interaction via XML parameter entities](#blind-xxe-with-out-of-band-interaction-via-xml-parameter-entities)
-- [Exploiting blind XXE to exfiltrate data using a malicious external DTD](#exploiting-blind-xxe-to-exfiltrate-data-using-a-malicious-external-dtd)
-- [Exploiting blind XXE to retrieve data via error messages](#exploiting-blind-xxe-to-retrieve-data-via-error-messages)
-- [Exploiting XInclude to retrieve files](#exploiting-xinclude-to-retrieve-files)
-- [Exploiting XXE via image file upload](#exploiting-xxe-via-image-file-upload)
-- [Exploiting XXE to retrieve data by repurposing a local DTD](#exploiting-xxe-to-retrieve-data-by-repurposing-a-local-dtd)
-  - [Payload](#payload)
-<!-- /TOC -->
 
 ---
 

@@ -1,4 +1,67 @@
-python
+```table-of-contents
+```
+
+# Race condition
+## Limit overrun
+Dạng race condition nổi tiếng nhất cho phép bạn vượt qua một số giới hạn do logic nghiệp vụ của ứng dụng áp đặt.
+
+Ví dụ, xét một cửa hàng trực tuyến cho phép bạn nhập mã khuyến mãi trong quá trình thanh toán để nhận giảm giá một lần cho đơn hàng. Để áp dụng khoản giảm giá này, ứng dụng có thể thực hiện các bước ở mức khái quát sau:
+
+- Kiểm tra rằng bạn chưa sử dụng mã này trước đó.
+- Áp dụng mức giảm vào tổng tiền đơn hàng.
+- Cập nhật bản ghi trong cơ sở dữ liệu để phản ánh việc bạn đã sử dụng mã này.
+
+Nếu sau đó bạn cố gắng sử dụng lại mã này, các kiểm tra ban đầu được thực hiện ở đầu quy trình sẽ ngăn bạn làm điều này:
+![](../../image/Pasted%20image%2020260502005026.png)
+Bây giờ hãy xem điều gì sẽ xảy ra nếu một người dùng chưa từng áp dụng mã giảm giá này trước đó cố gắng áp dụng nó hai lần gần như cùng một thời điểm:
+![](../../image/Pasted%20image%2020260502005050.png)
+Như bạn có thể thấy, ứng dụng chuyển qua một trạng thái con tạm thời; tức là một trạng thái mà nó đi vào rồi thoát ra trước khi việc xử lý yêu cầu hoàn tất. Trong trường hợp này, trạng thái con bắt đầu khi máy chủ bắt đầu xử lý yêu cầu đầu tiên và kết thúc khi nó cập nhật cơ sở dữ liệu để cho biết rằng bạn đã sử dụng mã này. Điều này tạo ra một cửa sổ race nhỏ trong đó bạn có thể lặp lại việc nhận giảm giá bao nhiêu lần tùy thích.
+
+Có nhiều biến thể của kiểu tấn công này, bao gồm:
+
+- Đổi (redeem) thẻ quà tặng nhiều lần
+- Đánh giá một sản phẩm nhiều lần
+- Rút hoặc chuyển tiền vượt quá số dư tài khoản
+- Tái sử dụng một lời giải CAPTCHA
+- Vượt qua giới hạn tốc độ (rate limit) chống brute-force
+
+Các trường hợp vượt giới hạn (limit overrun) là một phân loại con của lỗi “time-of-check to time-of-use” (TOCTOU). Ở phần sau của chủ đề này, chúng ta sẽ xem xét một số ví dụ về lỗ hổng race condition không thuộc bất kỳ danh mục nào trong số này.
+## Burp repeater
+Quy trình phát hiện và khai thác race condition vượt giới hạn tương đối đơn giản. Ở mức khái quát, bạn chỉ cần:
+
+- Xác định một endpoint dùng-một-lần (single-use) hoặc bị giới hạn tần suất (rate-limited) có tác động đến bảo mật hoặc mục đích hữu ích khác.
+- Gửi nhiều yêu cầu tới endpoint này liên tiếp trong thời gian rất ngắn để xem bạn có thể vượt qua giới hạn đó hay không.
+
+Thách thức chính là canh thời điểm gửi yêu cầu sao cho ít nhất hai “cửa sổ race” (race windows) trùng nhau, gây ra va chạm (collision). Cửa sổ này thường chỉ kéo dài vài mili-giây và thậm chí có thể ngắn hơn.
+
+Ngay cả khi bạn gửi tất cả yêu cầu đúng cùng một thời điểm, trong thực tế vẫn có nhiều yếu tố bên ngoài không thể kiểm soát và khó dự đoán ảnh hưởng tới thời điểm máy chủ xử lý từng yêu cầu và thứ tự xử lý chúng.
+![](../../image/Pasted%20image%2020260502005137.png)
+Burp Suite 2023.9 bổ sung các khả năng mạnh mẽ mới cho Burp Repeater, cho phép bạn dễ dàng gửi một nhóm yêu cầu song song theo cách giảm đáng kể tác động của một trong các yếu tố gây nhiễu, cụ thể là **network jitter**. Burp sẽ tự động điều chỉnh kỹ thuật được sử dụng để phù hợp với phiên bản HTTP mà máy chủ hỗ trợ:
+
+- Với **HTTP/1**, nó sử dụng kỹ thuật đồng bộ byte cuối (last-byte synchronization technique) kinh điển.
+- Với **HTTP/2**, nó sử dụng kỹ thuật **single-packet attack**, lần đầu tiên được PortSwigger Research trình diễn tại Black Hat USA 2023.
+
+Kỹ thuật _single-packet attack_ cho phép bạn vô hiệu hóa hoàn toàn sự can thiệp từ network jitter bằng cách dùng một gói tin TCP duy nhất để hoàn tất đồng thời 20–30 yêu cầu.![](../../image/Pasted%20image%2020260502005149.png)
+Mặc dù đôi khi chỉ cần hai yêu cầu là đủ để kích hoạt khai thác, nhưng việc gửi một số lượng lớn yêu cầu theo cách này sẽ giúp giảm thiểu độ trễ nội bộ, hay còn gọi là **server-side jitter**. Điều này đặc biệt hữu ích trong giai đoạn khám phá ban đầu. Phương pháp luận này sẽ được trình bày chi tiết hơn ở phần sau.
+
+> **Cách làm** Sau khi bắt Request và Send to Repeater thì sẽ click Custom actions ở hàng dọc bên phải Chọn New → From template → Trigger race condition → Sử dụng template này Có thể tùy chỉnh số lần gửi request nếu muốn, sau đó click run để bắt đầu attack
+
+## Turbo Intruder
+Turbo Intruder yêu cầu có một mức thành thạo nhất định với **Python**, nhưng lại phù hợp cho các cuộc tấn công phức tạp hơn, chẳng hạn như:
+
+- Các tình huống cần thử lại nhiều lần (multiple retries)
+- Canh thời gian gửi yêu cầu theo nhịp lệch (staggered request timing)
+- Hoặc khi cần gửi một số lượng cực lớn yêu cầu.
+
+Để sử dụng kỹ thuật _single-packet attack_ trong **Turbo Intruder**:
+
+1. Đảm bảo rằng mục tiêu hỗ trợ **HTTP/2**. (_Single-packet attack_ không tương thích với HTTP/1).
+2. Thiết lập các tùy chọn cấu hình `engine=Engine.BURP2` và `concurrentConnections=1` cho request engine.
+3. Khi đưa yêu cầu vào hàng đợi (queueing requests), hãy **nhóm** chúng lại bằng cách gán chúng cho một **gate** có tên, sử dụng tham số `gate` trong phương thức `engine.queue()`.
+4. Để gửi tất cả các yêu cầu trong một nhóm, mở **gate** tương ứng bằng phương thức `engine.openGate()`.
+
+Ví dụ:
+```python
 def queueRequests(target, wordlists):
     engine = RequestEngine(endpoint=target.endpoint,
                             concurrentConnections=1,
@@ -228,28 +291,6 @@ Khi một yêu cầu đơn lẻ có thể khiến ứng dụng chuyển qua các
 - **Trong một số kiến trúc, có thể phù hợp khi loại bỏ hoàn toàn state phía server.** Thay vào đó, có thể **mã hóa để đẩy state sang phía client**, ví dụ dùng **JWT**. Lưu ý cách làm này **có rủi ro riêng**, như đã được trình bày chi tiết trong chủ đề **tấn công JWT**.
 
 # WU
-
-<!-- TOC -->
-## Mục lục
-
-- [Hidden multi-step sequences](#hidden-multi-step-sequences)
-- [Phương pháp](#phương-pháp)
-  - [Dự đoán va chạm](#dự-đoán-va-chạm)
-  - [Thăm dò manh mối](#thăm-dò-manh-mối)
-  - [Chứng minh khái niệm](#chứng-minh-khái-niệm)
-- [Multi-endpoint](#multi-endpoint)
-- [Single-endpoint](#single-endpoint)
-- [Session-based locking mechanisms](#session-based-locking-mechanisms)
-- [Partial construction](#partial-construction)
-- [Time-sensitive](#time-sensitive)
-- [Phòng tránh](#phòng-tránh)
-- [Limit overrun race conditions](#limit-overrun-race-conditions)
-- [Multi-endpoint race conditions](#multi-endpoint-race-conditions)
-- [Bypassing rate limits via race conditions](#bypassing-rate-limits-via-race-conditions)
-- [Single-endpoint race conditions](#single-endpoint-race-conditions)
-- [Exploiting time-sensitive vulnerabilities](#exploiting-time-sensitive-vulnerabilities)
-- [Partial construction race conditions](#partial-construction-race-conditions)
-<!-- /TOC -->
 - [ ] Limit overrun race conditions
 - [ ] Multi-endpoint race conditions
 - [ ] Bypassing rate limits via race conditions

@@ -1,4 +1,24 @@
+```table-of-contents
+```
 
+# Giới thiệu
+
+Trong phần này, chúng ta sẽ thảo luận cách mà các cấu hình sai và logic nghiệp vụ lỗi có thể khiến các website phơi nhiễm với nhiều loại tấn công thông qua trường Host của HTTP. Chúng tôi sẽ phác thảo phương pháp ở mức cao để xác định các website dễ bị tấn công bởi tiêu đề Host HTTP và minh họa cách bạn có thể khai thác điều này cho các loại tấn công sau:
+
+- Đầu độc quy trình đặt lại mật khẩu
+- Đầu độc bộ nhớ đệm web
+- Khai thác các lỗ hổng phía máy chủ cổ điển
+- Vượt qua xác thực
+- Dò host ảo bằng phương pháp brute-force
+- SSRF dựa trên định tuyến
+- Tấn công trạng thái kết nối
+# Khái niệm
+
+---
+
+Tiêu đề Host của HTTP là một trường yêu cầu bắt buộc kể từ HTTP/1.1. Trường này chỉ định tên miền mà client muốn truy cập. Ví dụ, khi người dùng truy cập `https://portswigger.net/web-security`, trình duyệt của họ sẽ tạo một yêu cầu chứa trường Host như sau:
+
+```
 GET /web-security HTTP/1.1
 Host: portswigger.net
 ```
@@ -6,43 +26,6 @@ Host: portswigger.net
 Trong một số trường hợp, chẳng hạn khi yêu cầu bị chuyển tiếp bởi một hệ thống trung gian, giá trị Host có thể bị thay đổi trước khi đến thành phần back-end dự kiến. Chúng ta sẽ thảo luận chi tiết hơn về kịch bản này ở phần dưới.
 
 # Mục đích
-
-<!-- TOC -->
-## Mục lục
-
-- [Virtual hosting](#virtual-hosting)
-- [Định tuyến lưu lượng qua hệ thống trung gian](#định-tuyến-lưu-lượng-qua-hệ-thống-trung-gian)
-- [HTTP Host header giải quyết vấn đề này như thế nào?](#http-host-header-giải-quyết-vấn-đề-này-như-thế-nào)
-- [**Cung cấp tiêu đề Host tùy ý**](#cung-cấp-tiêu-đề-host-tùy-ý)
-- [Lỗi xác thực](#lỗi-xác-thực)
-- [Gửi yêu cầu mơ hồ](#gửi-yêu-cầu-mơ-hồ)
-  - [**Chèn nhiều tiêu đề Host trùng lặp**](#chèn-nhiều-tiêu-đề-host-trùng-lặp)
-  - [**Cung cấp URL tuyệt đối**](#cung-cấp-url-tuyệt-đối)
-  - [Line wrapping](#line-wrapping)
-  - [Các kỹ thuật khác](#các-kỹ-thuật-khác)
-- [Chèn tiêu đề ghi đè Host](#chèn-tiêu-đề-ghi-đè-host)
-- [Đầu độc quy trình đặt lại mật khẩu](#đầu-độc-quy-trình-đặt-lại-mật-khẩu)
-  - [Nguyên lý hoạt động](#nguyên-lý-hoạt-động)
-  - [Xây dựng cuộc tấn công](#xây-dựng-cuộc-tấn-công)
-- [Đầu độc Web cache qua Host Header](#đầu-độc-web-cache-qua-host-header)
-- [Khai thác các lỗ hổng phía máy chủ cổ điển](#khai-thác-các-lỗ-hổng-phía-máy-chủ-cổ-điển)
-- [Vượt qua xác thực](#vượt-qua-xác-thực)
-- [Dò host ảo bằng brute-force](#dò-host-ảo-bằng-brute-force)
-- [SSRF dựa trên định tuyến](#ssrf-dựa-trên-định-tuyến)
-- [Tấn công trạng thái kết nối](#tấn-công-trạng-thái-kết-nối)
-- [SSRF thông qua dòng yêu cầu sai định dạng](#ssrf-thông-qua-dòng-yêu-cầu-sai-định-dạng)
-- [**Bảo vệ URL tuyệt đối**](#bảo-vệ-url-tuyệt-đối)
-- [**Xác thực trường Host**](#xác-thực-trường-host)
-- [**Không hỗ trợ các header ghi đè Host**](#không-hỗ-trợ-các-header-ghi-đè-host)
-- [**Whitelist các domain được phép**](#whitelist-các-domain-được-phép)
-- [**Cẩn trọng với các virtual host chỉ dùng nội bộ**](#cẩn-trọng-với-các-virtual-host-chỉ-dùng-nội-bộ)
-- [Basic password reset poisoning](#basic-password-reset-poisoning)
-- [Host header authentication bypass](#host-header-authentication-bypass)
-- [Web cache poisoning via ambiguous requests](#web-cache-poisoning-via-ambiguous-requests)
-- [Routing base SSRF](#routing-base-ssrf)
-- [SSRF via flawed request parsing](#ssrf-via-flawed-request-parsing)
-- [Host validation bypass via connection state attack](#host-validation-bypass-via-connection-state-attack)
-<!-- /TOC -->
 
 
 Mục đích của tiêu đề Host HTTP là giúp xác định thành phần back-end mà client muốn giao tiếp. Nếu yêu cầu không chứa trường Host, hoặc nếu trường Host bị sai định dạng theo bất kỳ cách nào, điều này có thể dẫn tới sự nhầm lẫn khi định tuyến các yêu cầu đến ứng dụng dự định.
