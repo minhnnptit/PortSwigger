@@ -1,5 +1,37 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [CORS](#cors)
+  - [Khái niệm](#khái-niệm)
+- [SOP](#sop)
+  - [SOP là gì?](#sop-là-gì)
+  - [Sao SOP lại cần thiết?](#sao-sop-lại-cần-thiết)
+  - [SOP triển khai như nào?](#sop-triển-khai-như-nào)
+  - [Nới lỏng chính sách](#nới-lỏng-chính-sách)
+- [ACAO](#acao)
+  - [Khái niệm](#khái-niệm-1)
+  - [Triển khai CORS đơn giản](#triển-khai-cors-đơn-giản)
+  - [Xử lý CORS kèm thông tin xác thực](#xử-lý-cors-kèm-thông-tin-xác-thực)
+  - [Nới lỏng đặc tả](#nới-lỏng-đặc-tả)
+  - [Kiểm tra trước](#kiểm-tra-trước)
+  - [CORS có chống CSRF không?](#cors-có-chống-csrf-không)
+- [Lỗ hổng](#lỗ-hổng)
+  - [**Server-generated ACAO header from client-specified Origin header**](#server-generated-acao-header-from-client-specified-origin-header)
+  - [**Errors parsing Origin headers**](#errors-parsing-origin-headers)
+  - [**Whitelisted null origin value**](#whitelisted-null-origin-value)
+  - [**Exploiting XSS via CORS trust relationships**](#exploiting-xss-via-cors-trust-relationships)
+  - [**Breaking TLS with poorly configured CORS**](#breaking-tls-with-poorly-configured-cors)
+- [Bảo mật](#bảo-mật)
+  - [Cấu hình đúng cho các yêu cầu xuyên miền](#cấu-hình-đúng-cho-các-yêu-cầu-xuyên-miền)
+  - [Chỉ cho phép các site đáng tin cậy](#chỉ-cho-phép-các-site-đáng-tin-cậy)
+  - [Tránh đưa `null` vào danh sách trắng](#tránh-đưa-null-vào-danh-sách-trắng)
+  - [Tránh dùng ký tự đại diện trong mạng nội bộ](#tránh-dùng-ký-tự-đại-diện-trong-mạng-nội-bộ)
+  - [CORS không thay thế cho các chính sách bảo mật phía máy chủ](#cors-không-thay-thế-cho-các-chính-sách-bảo-mật-phía-máy-chủ)
+- [WU](#wu)
+  - [CORS vulnerability with basic origin reflection](#cors-vulnerability-with-basic-origin-reflection)
+  - [CORS vulnerability with trusted null origin](#cors-vulnerability-with-trusted-null-origin)
+  - [CORS vulnerability with trusted insecure protocols](#cors-vulnerability-with-trusted-insecure-protocols)
+<!-- /TOC -->
 
 # CORS
 

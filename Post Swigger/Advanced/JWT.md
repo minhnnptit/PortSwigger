@@ -1,5 +1,41 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [JWTs là gì?](#jwts-là-gì)
+  - [JWT format](#jwt-format)
+  - [JWT signature](#jwt-signature)
+  - [JWT / JWS / JWE](#jwt--jws--jwe)
+- [JWT attacks](#jwt-attacks)
+- [Hậu quả](#hậu-quả)
+- [Nguyên nhân](#nguyên-nhân)
+- [Xâm nhập](#xâm-nhập)
+  - [**JWT signature verification**](#jwt-signature-verification)
+    - [Chấp nhận chữ ký tùy ý](#chấp-nhận-chữ-ký-tùy-ý)
+    - [Chấp nhận không chữ ký](#chấp-nhận-không-chữ-ký)
+  - [**Brute-forcing secret keys**](#brute-forcing-secret-keys)
+    - [Hashcat](#hashcat)
+  - [**JWT header parameter injections**](#jwt-header-parameter-injections)
+    - [jwk](#jwk)
+    - [jku](#jku)
+    - [kid](#kid)
+    - [other parameters](#other-parameters)
+  - [**Algorithm confusion attacks**](#algorithm-confusion-attacks)
+    - [**Symmetric vs asymmetric algo**](#symmetric-vs-asymmetric-algo)
+    - [Nguyên nhân](#nguyên-nhân-1)
+    - [Thực hiện tấn công](#thực-hiện-tấn-công)
+    - [**Deriving public keys from existing tokens**](#deriving-public-keys-from-existing-tokens)
+- [Bảo mật](#bảo-mật)
+- [WU](#wu)
+  - [JWT authentication bypass via unverified signature](#jwt-authentication-bypass-via-unverified-signature)
+  - [JWT authentication bypass via flawed signature verification](#jwt-authentication-bypass-via-flawed-signature-verification)
+  - [JWT authentication bypass via weak signing key](#jwt-authentication-bypass-via-weak-signing-key)
+  - [JWT authentication bypass via jwk header injection](#jwt-authentication-bypass-via-jwk-header-injection)
+  - [JWT authentication bypass via jku header injection](#jwt-authentication-bypass-via-jku-header-injection)
+  - [JWT authentication bypass via kid header path traversal](#jwt-authentication-bypass-via-kid-header-path-traversal)
+  - [JWT authentication bypass via algorithm confusion](#jwt-authentication-bypass-via-algorithm-confusion)
+  - [JWT authentication bypass via algorithm confusion with no exposed key](#jwt-authentication-bypass-via-algorithm-confusion-with-no-exposed-key)
+<!-- /TOC -->
 
 # Giới thiệu
 

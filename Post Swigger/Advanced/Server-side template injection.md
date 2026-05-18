@@ -1,5 +1,28 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [SSTI là gì?](#ssti-là-gì)
+- [Hậu quả](#hậu-quả)
+- [Nguyên nhân](#nguyên-nhân)
+- [Xây dựng cuộc tấn công](#xây-dựng-cuộc-tấn-công)
+  - [Detect (Phát hiện)](#detect-phát-hiện)
+    - [Plaintext context](#plaintext-context)
+    - [Code context](#code-context)
+  - [Identify (Nhận diện)](#identify-nhận-diện)
+  - [Exploit (Khai thác)](#exploit-khai-thác)
+    - [Read](#read)
+    - [Explore the environment](#explore-the-environment)
+    - [Create a custom attack](#create-a-custom-attack)
+- [Bảo mật](#bảo-mật)
+- [WU](#wu)
+  - [Basic server-side template injection](#basic-server-side-template-injection)
+  - [Basic server-side template injection (code context)](#basic-server-side-template-injection-code-context)
+  - [SSTI using documentation](#ssti-using-documentation)
+  - [SSTI in an unknown language with a documentation exploit](#ssti-in-an-unknown-language-with-a-documentation-exploit)
+  - [SSTI with info disclosure via user-supplied objects](#ssti-with-info-disclosure-via-user-supplied-objects)
+  - [Server-side template injection in a sandboxed environment](#server-side-template-injection-in-a-sandboxed-environment)
+  - [Server-side template injection with a custom exploit](#server-side-template-injection-with-a-custom-exploit)
+<!-- /TOC -->
 
 # SSTI là gì?
 

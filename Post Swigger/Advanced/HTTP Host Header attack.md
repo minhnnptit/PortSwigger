@@ -1,5 +1,48 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [Khái niệm](#khái-niệm)
+- [Mục đích](#mục-đích)
+  - [Virtual hosting](#virtual-hosting)
+  - [Định tuyến lưu lượng qua hệ thống trung gian](#định-tuyến-lưu-lượng-qua-hệ-thống-trung-gian)
+  - [HTTP Host header giải quyết vấn đề này như thế nào?](#http-host-header-giải-quyết-vấn-đề-này-như-thế-nào)
+- [Tấn công HTTP Host header là gì?](#tấn-công-http-host-header-là-gì)
+- [Nguyên nhân](#nguyên-nhân)
+- [Kiểm thử](#kiểm-thử)
+  - [**Cung cấp tiêu đề Host tùy ý**](#cung-cấp-tiêu-đề-host-tùy-ý)
+  - [Lỗi xác thực](#lỗi-xác-thực)
+  - [Gửi yêu cầu mơ hồ](#gửi-yêu-cầu-mơ-hồ)
+    - [**Chèn nhiều tiêu đề Host trùng lặp**](#chèn-nhiều-tiêu-đề-host-trùng-lặp)
+    - [**Cung cấp URL tuyệt đối**](#cung-cấp-url-tuyệt-đối)
+    - [Line wrapping](#line-wrapping)
+    - [Các kỹ thuật khác](#các-kỹ-thuật-khác)
+  - [Chèn tiêu đề ghi đè Host](#chèn-tiêu-đề-ghi-đè-host)
+- [Xâm nhập](#xâm-nhập)
+  - [Đầu độc quy trình đặt lại mật khẩu](#đầu-độc-quy-trình-đặt-lại-mật-khẩu)
+    - [Nguyên lý hoạt động](#nguyên-lý-hoạt-động)
+    - [Xây dựng cuộc tấn công](#xây-dựng-cuộc-tấn-công)
+  - [Đầu độc Web cache qua Host Header](#đầu-độc-web-cache-qua-host-header)
+  - [Khai thác các lỗ hổng phía máy chủ cổ điển](#khai-thác-các-lỗ-hổng-phía-máy-chủ-cổ-điển)
+  - [Vượt qua xác thực](#vượt-qua-xác-thực)
+  - [Dò host ảo bằng brute-force](#dò-host-ảo-bằng-brute-force)
+  - [SSRF dựa trên định tuyến](#ssrf-dựa-trên-định-tuyến)
+  - [Tấn công trạng thái kết nối](#tấn-công-trạng-thái-kết-nối)
+  - [SSRF thông qua dòng yêu cầu sai định dạng](#ssrf-thông-qua-dòng-yêu-cầu-sai-định-dạng)
+- [Bảo mật](#bảo-mật)
+  - [**Bảo vệ URL tuyệt đối**](#bảo-vệ-url-tuyệt-đối)
+  - [**Xác thực trường Host**](#xác-thực-trường-host)
+  - [**Không hỗ trợ các header ghi đè Host**](#không-hỗ-trợ-các-header-ghi-đè-host)
+  - [**Whitelist các domain được phép**](#whitelist-các-domain-được-phép)
+  - [**Cẩn trọng với các virtual host chỉ dùng nội bộ**](#cẩn-trọng-với-các-virtual-host-chỉ-dùng-nội-bộ)
+- [WU](#wu)
+  - [Basic password reset poisoning](#basic-password-reset-poisoning)
+  - [Host header authentication bypass](#host-header-authentication-bypass)
+  - [Web cache poisoning via ambiguous requests](#web-cache-poisoning-via-ambiguous-requests)
+  - [Routing base SSRF](#routing-base-ssrf)
+  - [SSRF via flawed request parsing](#ssrf-via-flawed-request-parsing)
+  - [Host validation bypass via connection state attack](#host-validation-bypass-via-connection-state-attack)
+<!-- /TOC -->
 
 # Giới thiệu
 

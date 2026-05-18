@@ -1,5 +1,26 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [API testing](#api-testing)
+  - [API recon](#api-recon)
+  - [**API documentation**](#api-documentation)
+  - [**Identifying API endpoints**](#identifying-api-endpoints)
+  - [**Finding hidden parameters**](#finding-hidden-parameters)
+  - [**Mass assignment vulnerabilities**](#mass-assignment-vulnerabilities)
+  - [**Preventing vulnerabilities in APIs**](#preventing-vulnerabilities-in-apis)
+  - [**Server-side parameter pollution**](#server-side-parameter-pollution)
+    - [**Query string**](#query-string)
+    - [REST Path](#rest-path)
+    - [**Structured data formats**](#structured-data-formats)
+  - [Tools](#tools)
+  - [Ngăn chặn Server-Side Parameter Pollution](#ngăn-chặn-server-side-parameter-pollution)
+- [WU](#wu)
+  - [Exploiting an API endpoint using documentation](#exploiting-an-api-endpoint-using-documentation)
+  - [Exploiting server-side parameter pollution in a query string](#exploiting-server-side-parameter-pollution-in-a-query-string)
+  - [Finding and exploiting an unused API endpoint](#finding-and-exploiting-an-unused-api-endpoint)
+  - [Exploiting a mass assignment vulnerability](#exploiting-a-mass-assignment-vulnerability)
+  - [Exploiting server-side parameter pollution in a REST URL](#exploiting-server-side-parameter-pollution-in-a-rest-url)
+<!-- /TOC -->
 # API testing
 
 ## API recon

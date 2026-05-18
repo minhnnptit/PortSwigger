@@ -1,5 +1,52 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [CSRF là gì?](#csrf-là-gì)
+- [Hậu quả](#hậu-quả)
+- [Cách CSRF hoạt động](#cách-csrf-hoạt-động)
+- [Cách xây dựng cuộc tấn công CSRF](#cách-xây-dựng-cuộc-tấn-công-csrf)
+- [Cách vận hành cuộc tấn công CSRF](#cách-vận-hành-cuộc-tấn-công-csrf)
+- [Phòng tránh CSRF](#phòng-tránh-csrf)
+- [CSRF token](#csrf-token)
+  - [Khái niệm](#khái-niệm)
+  - [Khai thác](#khai-thác)
+    - [Request](#request)
+    - [Token](#token)
+    - [User session](#user-session)
+    - [Non-session cookie](#non-session-cookie)
+    - [Duplicate CSFR token in cookie](#duplicate-csfr-token-in-cookie)
+- [**SameSite cookies**](#samesite-cookies)
+  - [Khái niệm SameSite](#khái-niệm-samesite)
+  - [Khái niệm SameSite cookie](#khái-niệm-samesite-cookie)
+  - [Site v/s Origin](#site-vs-origin)
+  - [Cách SameSite hoạt động](#cách-samesite-hoạt-động)
+    - [Strict](#strict)
+    - [Lax](#lax)
+    - [None](#none)
+  - [Khai thác](#khai-thác-1)
+    - [Lax: GET Request](#lax-get-request)
+    - [On-site gadgets](#on-site-gadgets)
+    - [Sibling domain](#sibling-domain)
+    - [**Newly issued cookies**](#newly-issued-cookies)
+- [Referer](#referer)
+  - [Header Referer](#header-referer)
+  - [Khai thác](#khai-thác-2)
+    - [Tồn tại header](#tồn-tại-header)
+    - [Xác thực Referer](#xác-thực-referer)
+- [WU](#wu)
+  - [CSRF vul with no defense](#csrf-vul-with-no-defense)
+  - [CSRF where token validatoin depends on request method](#csrf-where-token-validatoin-depends-on-request-method)
+  - [CSRF where token validation depends on token being present](#csrf-where-token-validation-depends-on-token-being-present)
+  - [CSRF where token is not tied to user session](#csrf-where-token-is-not-tied-to-user-session)
+  - [CSRF where token is tied to non-session cookie](#csrf-where-token-is-tied-to-non-session-cookie)
+  - [CSRF where token is duplicated in cookie](#csrf-where-token-is-duplicated-in-cookie)
+  - [SameSite Strict bypass via client-side redirect](#samesite-strict-bypass-via-client-side-redirect)
+  - [SameSite Lax bypass via cookie refresh](#samesite-lax-bypass-via-cookie-refresh)
+  - [SameSite Lax bypass via method override](#samesite-lax-bypass-via-method-override)
+  - [CSRF where Referer validation depends on header being present](#csrf-where-referer-validation-depends-on-header-being-present)
+  - [CSRF with broken Referer validation](#csrf-with-broken-referer-validation)
+  - [SameSite Strict bypass via sibling domain](#samesite-strict-bypass-via-sibling-domain)
+<!-- /TOC -->
 
 # CSRF là gì?
 
@@ -856,7 +903,6 @@ bởi vì mặc định, các trình duyệt hiện nay (đặc biệt là Chrom
 
 ![](../../image/Pasted%20image%2020260505033031.png)
 ![](../../image/Pasted%20image%2020260505033329.png)
-
 
 
 ```

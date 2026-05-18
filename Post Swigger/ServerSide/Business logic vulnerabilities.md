@@ -1,5 +1,35 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Business logic vulnerabilities](#business-logic-vulnerabilities)
+  - [Lỗ hổng logic nghiệp vụ](#lỗ-hổng-logic-nghiệp-vụ)
+  - [Nguyên nhân](#nguyên-nhân)
+  - [Hậu quả](#hậu-quả)
+  - [Lỗ hổng](#lỗ-hổng)
+    - [Trust client-side control](#trust-client-side-control)
+    - [Unconventional Input](#unconventional-input)
+    - [Flawed assumptions about user behavior](#flawed-assumptions-about-user-behavior)
+    - [Trusted users won't always remain trustworthy](#trusted-users-wont-always-remain-trustworthy)
+    - [Users won't always supply mandatory input](#users-wont-always-supply-mandatory-input)
+    - [Users won't always follow the intended sequence](#users-wont-always-follow-the-intended-sequence)
+    - [Domain-specific flaws](#domain-specific-flaws)
+    - [Providing an encryption oracle](#providing-an-encryption-oracle)
+    - [Email address parser discrepancies](#email-address-parser-discrepancies)
+  - [Phòng tránh](#phòng-tránh)
+- [WU lab](#wu-lab)
+  - [Excessive trust in client-side controls](#excessive-trust-in-client-side-controls)
+  - [High-level logic vul](#high-level-logic-vul)
+  - [Inconsistent security controls](#inconsistent-security-controls)
+  - [Flawed enforcement of business rules](#flawed-enforcement-of-business-rules)
+  - [Low-level logic flaw](#low-level-logic-flaw)
+  - [Inconsistent handling of exceptional input](#inconsistent-handling-of-exceptional-input)
+  - [Weak isolation on dual-use endpoint](#weak-isolation-on-dual-use-endpoint)
+  - [Insufficient workflow validation](#insufficient-workflow-validation)
+  - [Authentication bypass via flawed state machine](#authentication-bypass-via-flawed-state-machine)
+  - [Infinite money logic flaw](#infinite-money-logic-flaw)
+  - [Authentication bypass via encryption oracle](#authentication-bypass-via-encryption-oracle)
+  - [Bypassing access controls using email address parsing discrepancies](#bypassing-access-controls-using-email-address-parsing-discrepancies)
+<!-- /TOC -->
 
 # Business logic vulnerabilities
 ## Lỗ hổng logic nghiệp vụ
@@ -424,7 +454,6 @@ Lỗ hổng nằm ở việc sử dụng **Ký tự chú thích (Comments)** ho�
 
 ta có email là:  `attacker@exploit-0a4200110470d23181eb1a05019100e3.exploit-server.net`
 **Cấu trúc Payload:** `=?utf-7?q?attacker&AEA-exploit-[ID-EXPLOIT-SERVER]&ACA-?=@ginandjuice.shop`
-
 
 
 - `&AEA-` là mã hóa UTF-7 của ký tự `@`.

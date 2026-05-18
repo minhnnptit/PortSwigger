@@ -1,5 +1,46 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Authentication vulnerabilities](#authentication-vulnerabilities)
+      - [Authentication là gì?](#authentication-là-gì)
+      - [khác biệt giữa xác thực và phân quyền : authentication vs authorization](#khác-biệt-giữa-xác-thực-và-phân-quyền--authentication-vs-authorization)
+      - [nguyên nhân phát sinh lỗ hổng xác thực](#nguyên-nhân-phát-sinh-lỗ-hổng-xác-thực)
+      - [tác động của lỗ hổng xác thực](#tác-động-của-lỗ-hổng-xác-thực)
+    - [lỗ hổng trong trong cơ chế xác thực](#lỗ-hổng-trong-trong-cơ-chế-xác-thực)
+      - [lỗ hổng trong password-base login](#lỗ-hổng-trong-password-base-login)
+    - [HTTP Basic Authentication](#http-basic-authentication)
+  - [**Multi-factor authentication**](#multi-factor-authentication)
+    - [**Two-factor authentication tokens**](#two-factor-authentication-tokens)
+    - [Flawed two-factor verification logic](#flawed-two-factor-verification-logic)
+    - [**Brute-forcing 2FA verification codes**](#brute-forcing-2fa-verification-codes)
+  - [**Other authentication mechanisms**](#other-authentication-mechanisms)
+    - [Keeping users logged in](#keeping-users-logged-in)
+    - [**Resetting user passwords**](#resetting-user-passwords)
+    - [Changing user passwords](#changing-user-passwords)
+- [Ngăn chặn](#ngăn-chặn)
+  - [User credentials](#user-credentials)
+  - [Don’t count on users](#dont-count-on-users)
+  - [**Prevent username enumeration**](#prevent-username-enumeration)
+  - [**Implement robust brute-force protection**](#implement-robust-brute-force-protection)
+  - [**Triple-check your verification logic**](#triple-check-your-verification-logic)
+  - [**Don't forget supplementary functionality**](#dont-forget-supplementary-functionality)
+  - [**Implement proper multi-factor authentication**](#implement-proper-multi-factor-authentication)
+- [WU 14 lab](#wu-14-lab)
+  - [Username enumeration via different responses](#username-enumeration-via-different-responses)
+  - [2FA simple bypass](#2fa-simple-bypass)
+  - [Password reset broken logic](#password-reset-broken-logic)
+  - [Username enumeration via subtly different responses](#username-enumeration-via-subtly-different-responses)
+  - [Username enumeration via response timing](#username-enumeration-via-response-timing)
+  - [Broken brute-force protection, IP block](#broken-brute-force-protection-ip-block)
+  - [Username enumeration via account lock](#username-enumeration-via-account-lock)
+  - [2FA broken logic](#2fa-broken-logic)
+  - [Brute-forcing a stay-logged-in cookie](#brute-forcing-a-stay-logged-in-cookie)
+  - [Offline password cracking](#offline-password-cracking)
+  - [Password reset poisoning via middleware](#password-reset-poisoning-via-middleware)
+  - [Password brute-force via password change](#password-brute-force-via-password-change)
+  - [Broken brute-force protection, multiple credentials per request](#broken-brute-force-protection-multiple-credentials-per-request)
+  - [2FA bypass using a brute-force attack](#2fa-bypass-using-a-brute-force-attack)
+<!-- /TOC -->
 
 # Authentication vulnerabilities
 #### Authentication là gì?

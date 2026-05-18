@@ -1,5 +1,30 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Websockets](#websockets)
+- [Websockets là gì?](#websockets-là-gì)
+- [HTTP v/s Websockets](#http-vs-websockets)
+- [Cách thiết lập Websockets](#cách-thiết-lập-websockets)
+  - [Quá trình bắt tay](#quá-trình-bắt-tay)
+  - [Điểm quan trọng](#điểm-quan-trọng)
+  - [Websockets message](#websockets-message)
+- [Thao túng Websockets traffic](#thao-túng-websockets-traffic)
+  - [Intercept & Modify](#intercept--modify)
+  - [Replay & Generate](#replay--generate)
+  - [Manipulate](#manipulate)
+- [Lỗ hổng Websockets](#lỗ-hổng-websockets)
+  - [Websockets message](#websockets-message-1)
+  - [Websockets handshake](#websockets-handshake)
+  - [**Cross-site WebSocket hijacking**](#cross-site-websocket-hijacking)
+    - [Khái niệm](#khái-niệm)
+    - [Hậu quả](#hậu-quả)
+    - [Tấn công](#tấn-công)
+- [Bảo mật](#bảo-mật)
+- [WU](#wu)
+  - [Manipulating WebSocket messages to exploit vulnerabilities](#manipulating-websocket-messages-to-exploit-vulnerabilities)
+  - [Cross-site WebSocket hijacking](#cross-site-websocket-hijacking-1)
+  - [Manipulating the WebSocket handshake to exploit vulnerabilities](#manipulating-the-websocket-handshake-to-exploit-vulnerabilities)
+<!-- /TOC -->
 
 # Websockets
 

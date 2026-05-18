@@ -1,5 +1,39 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Web cache deception](#web-cache-deception)
+  - [Giới thiệu](#giới-thiệu)
+  - [Web caches](#web-caches)
+    - [Cache keys](#cache-keys)
+    - [Cache rules](#cache-rules)
+  - [Xây dựng cuộc tấn công](#xây-dựng-cuộc-tấn-công)
+    - [Sử dụng Cache Buster](#sử-dụng-cache-buster)
+    - [Phát hiện phản hồi được cache](#phát-hiện-phản-hồi-được-cache)
+  - [Lỗ hổng](#lỗ-hổng)
+    - [**Static extension cache rules**](#static-extension-cache-rules)
+      - [Path mapping discrepancies](#path-mapping-discrepancies)
+      - [Exploit](#exploit)
+      - [**Delimiter discrepancies**](#delimiter-discrepancies)
+      - [Exploit](#exploit-1)
+      - [Delimiter decoding discrepancies](#delimiter-decoding-discrepancies)
+      - [Exploit](#exploit-2)
+    - [**Static directory cache rules**](#static-directory-cache-rules)
+      - [**Normalization discrepancies**](#normalization-discrepancies)
+      - [**Detect - Origin server**](#detect---origin-server)
+      - [**Detect - Cache server**](#detect---cache-server)
+      - [Exploit **- Origin server**](#exploit---origin-server)
+      - [Exploit **- Cache server**](#exploit---cache-server)
+    - [**File name cache rules**](#file-name-cache-rules)
+      - [**Detect**](#detect)
+      - [Exploit](#exploit-3)
+  - [Ngăn chặn](#ngăn-chặn)
+- [WU](#wu)
+  - [Exploiting path mapping for web cache deception](#exploiting-path-mapping-for-web-cache-deception)
+  - [Exploiting path delimiters for web cache deception](#exploiting-path-delimiters-for-web-cache-deception)
+  - [Exploiting origin server normalization for web cache deception](#exploiting-origin-server-normalization-for-web-cache-deception)
+  - [Exploiting cache server normalization for web cache deception](#exploiting-cache-server-normalization-for-web-cache-deception)
+  - [Exploiting exact-match cache rules for web cache deception](#exploiting-exact-match-cache-rules-for-web-cache-deception)
+<!-- /TOC -->
 # Web cache deception
 ## Giới thiệu
 
@@ -595,7 +629,6 @@ Payload:
 👉 Đây là cách lợi dụng sự khác biệt chuẩn hóa của **cache server** để thực hiện **web cache deception exploit**.
 
 
-
 ---
 
 ### **File name cache rules**
@@ -680,7 +713,6 @@ thêm đuôi 123.js vào sau request GET tới trang cá nhân:
 ![](../../image/Pasted%20image%2020260503012149.png)
 
 
-
 ## Exploiting origin server normalization for web cache deception
 
 - ở bài lab này, ta lợi dụng cách **chuẩn hóa đường dẫn (Normalization)** khác nhau giữa Cache và Origin Server
@@ -723,7 +755,6 @@ Thêm `?wcd` để làm **cache buster**, đảm bảo không nhận lại bản
 1. **Origin Server thấy:** `/my-account` (vì bị chặn bởi `%23`) -> Trả về trang cá nhân.
 2. **Cache Server thấy:** `/my-account# /../resources` -> Sau khi chuẩn hóa thành `/resources`, nó quyết định Cache trang này lại.
 <script>document.location="https://[YOUR-LAB-ID].web-security-academy.net/my-account%23%2f%2e%2e%2fresources?wcd"</script>
-
 
 
 ![](../../image/Pasted%20image%2020260503015146.png)

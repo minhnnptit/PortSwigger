@@ -1,5 +1,28 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Information disclosure](#information-disclosure)
+  - [Khái niệm](#khái-niệm)
+  - [Nguyên nhân](#nguyên-nhân)
+  - [Hậu quả](#hậu-quả)
+  - [khai thác](#khai-thác)
+    - [Files for web crawlers](#files-for-web-crawlers)
+    - [Directory listings](#directory-listings)
+    - [Developer comment](#developer-comment)
+    - [Error messages](#error-messages)
+    - [Debugging data](#debugging-data)
+    - [Users account pages](#users-account-pages)
+    - [Sources code disclosure via backup files](#sources-code-disclosure-via-backup-files)
+    - [Information disclosure via due to insecure configuration](#information-disclosure-via-due-to-insecure-configuration)
+    - [Version control history](#version-control-history)
+  - [Phòng chống](#phòng-chống)
+- [WU](#wu)
+    - [Information disclosure in error messages](#information-disclosure-in-error-messages)
+    - [Information disclosure on debug page](#information-disclosure-on-debug-page)
+    - [Source code disclosure via backup files](#source-code-disclosure-via-backup-files)
+    - [Authentication bypass via information disclosure](#authentication-bypass-via-information-disclosure)
+    - [Information disclosure in version control history](#information-disclosure-in-version-control-history)
+<!-- /TOC -->
 
 # Information disclosure
 ## Khái niệm

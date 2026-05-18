@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-add_toc.py
-----------
-CHI lam mot viec: dam bao moi file .md deu co MUC LUC tinh hien duoc tren GitHub.
-KHONG dung toi anh, khong dung toi noi dung khac.
+add_toc.py  (v2)
+----------------
+CHI tao MUC LUC tinh hien duoc tren GitHub. KHONG dung toi anh.
 
-  - File CO khoi ```table-of-contents``` (cua plugin Obsidian) -> thay bang muc luc tinh.
-  - File KHONG co -> chen muc luc moi ngay sau tieu de H1 dau tien.
-  - File da co muc luc do script nay tao -> cap nhat lai (khong chen trung).
+Cach lam AN TOAN (duyet tung dong, khong dung regex tham lam):
+  - Tim khoi  ```table-of-contents ... ```  va thay bang muc luc tinh
+    DUNG TAI VI TRI do.
+  - Neu file khong co khoi do -> chen muc luc len DAU file.
+  - Lay TAT CA heading tu # den ######  (ke ca H1).
+  - Khong dem nham heading nam ben trong code block ```...```.
+  - Chay lai nhieu lan duoc (dung cap danh dau an <!-- TOC -->).
 
 CACH DUNG
 =========
-1. Dat file nay vao thu muc goc cua vault (vd: D:\\ivanesk\\ivanesk315\\Port).
-2. Mo PowerShell tai thu muc do.
-3. Chay thu (khong sua gi):   py add_toc.py
-4. Chay that:                 py add_toc.py --apply
-
-AN TOAN
-=======
-- Khi --apply, moi file .md goc duoc backup vao _backup_md/<thoi gian>/.
+  cd D:\\ivanesk\\ivanesk315\\Port
+  py add_toc.py            <- chay thu, khong sua gi
+  py add_toc.py --apply    <- chay that (co backup tu dong)
 """
 
 import os
@@ -28,36 +26,43 @@ import sys
 import shutil
 from datetime import datetime
 
-TOC_BLOCK_RE = re.compile(
-    r"```table-of-contents\s*\n(?:.*?\n)?```", re.IGNORECASE | re.DOTALL)
-HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$", re.MULTILINE)
-H1_RE = re.compile(r"^#\s+.*$", re.MULTILINE)
-
-# Cap danh dau an de chay lai nhieu lan ma khong chen trung.
-# GitHub khong hien thi comment HTML nay.
 TOC_MARKER = "<!-- TOC -->"
 TOC_END = "<!-- /TOC -->"
-EXISTING_TOC_RE = re.compile(
-    re.escape(TOC_MARKER) + r".*?" + re.escape(TOC_END), re.DOTALL)
+HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
+FENCE_RE = re.compile(r"^\s*(```|~~~)")
 
 
 def github_anchor(title):
-    """Tao anchor giong cach GitHub sinh ra cho 1 heading."""
+    """Tao anchor giong cach GitHub sinh cho 1 heading (giu chu tieng Viet)."""
     a = title.strip().lower()
-    a = re.sub(r"[^\w\s-]", "", a, flags=re.UNICODE)  # giu chu tieng Viet
+    a = re.sub(r"[^\w\s-]", "", a, flags=re.UNICODE)
     a = a.replace(" ", "-")
     return a
 
 
-def build_toc(content):
-    """Sinh muc luc tinh tu cac heading cap 2 tro xuong."""
-    headings = [(h, t) for h, t in HEADING_RE.findall(content) if len(h) >= 2]
+def collect_headings(lines):
+    """Lay heading, BO QUA dong nam trong code block."""
+    headings = []
+    in_fence = False
+    for line in lines:
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        m = HEADING_RE.match(line)
+        if m:
+            headings.append((len(m.group(1)), m.group(2).strip()))
+    return headings
+
+
+def build_toc(headings):
+    """Tao khoi muc luc tinh tu danh sach heading."""
     if not headings:
         return None
-    min_level = min(len(h[0]) for h in headings)
+    min_level = min(h[0] for h in headings)
     lines, seen = [], {}
-    for hashes, title in headings:
-        level = len(hashes)
+    for level, title in headings:
         anchor = github_anchor(title)
         if anchor in seen:
             seen[anchor] += 1
@@ -67,45 +72,80 @@ def build_toc(content):
         indent = "  " * (level - min_level)
         lines.append(f"{indent}- [{title}](#{anchor})")
     body = "\n".join(lines)
-    return f"{TOC_MARKER}\n## Mục lục\n\n{body}\n{TOC_END}"
+    return f"{TOC_MARKER}\n## Mục lục\n\n{body}\n{TOC_END}\n"
+
+
+def find_block(lines, opener_substring):
+    """
+    Tim 1 khoi fence co dong mo chua opener_substring.
+    Tra ve (start_index, end_index) bao gom ca dong mo va dong dong,
+    hoac None neu khong tim thay.
+    """
+    for i, line in enumerate(lines):
+        if line.strip().lower().startswith("```" + opener_substring):
+            # tim dong fence dong gan nhat
+            for j in range(i + 1, len(lines)):
+                if lines[j].strip().startswith("```"):
+                    return (i, j)
+            # khong co dong dong -> chi coi dong mo
+            return (i, i)
+    return None
+
+
+def find_existing_toc(lines):
+    """Tim muc luc do script tao truoc do (cap <!-- TOC --> ... <!-- /TOC -->)."""
+    start = end = None
+    for i, line in enumerate(lines):
+        if line.strip() == TOC_MARKER:
+            start = i
+        elif line.strip() == TOC_END:
+            end = i
+            break
+    if start is not None and end is not None and end >= start:
+        return (start, end)
+    return None
 
 
 def process_file(md_file, apply):
     with open(md_file, "r", encoding="utf-8") as fh:
         content = fh.read()
+    lines = content.split("\n")
     original = content
-    note = ""
 
-    # bo khoi plugin ```table-of-contents``` neu con
-    had_plugin_toc = bool(TOC_BLOCK_RE.search(content))
-    content = TOC_BLOCK_RE.sub("", content)
+    # 1) Lay heading (truoc khi xoa gi)
+    headings = collect_headings(lines)
+    toc_block = build_toc(headings)
+    if toc_block is None:
+        return 0  # file khong co heading -> bo qua
 
-    toc = build_toc(content)
-    if toc:
-        if EXISTING_TOC_RE.search(content):
-            content = EXISTING_TOC_RE.sub(lambda m: toc, content, count=1)
-            note = "cap nhat lai muc luc"
-        else:
-            m = H1_RE.search(content)
-            if m:
-                pos = m.end()
-                content = content[:pos] + "\n\n" + toc + content[pos:]
-            else:
-                content = toc + "\n\n" + content
-            note = ("thay khoi plugin bang muc luc tinh"
-                    if had_plugin_toc else "them moi muc luc")
+    toc_lines = toc_block.rstrip("\n").split("\n")
+
+    # 2) Xac dinh vi tri can thay
+    existing = find_existing_toc(lines)
+    if existing:
+        s, e = existing
+        new_lines = lines[:s] + toc_lines + lines[e + 1:]
+        note = "cap nhat lai muc luc"
     else:
-        if had_plugin_toc:
-            note = "xoa khoi plugin (file khong co heading)"
+        plugin = find_block(lines, "table-of-contents")
+        if plugin:
+            s, e = plugin
+            new_lines = lines[:s] + toc_lines + lines[e + 1:]
+            note = "thay khoi plugin bang muc luc tinh"
+        else:
+            # chen len dau file
+            new_lines = toc_lines + [""] + lines
+            note = "them moi muc luc o dau file"
 
+    new_content = "\n".join(new_lines)
     # don dong trong thua
-    content = re.sub(r"\n{4,}", "\n\n\n", content)
+    new_content = re.sub(r"\n{4,}", "\n\n\n", new_content)
 
-    if content != original:
-        print(f"[FILE] {md_file}\n    toc: {note}")
+    if new_content != original:
+        print(f"[FILE] {md_file}\n    -> {note}  ({len(headings)} heading)")
         if apply:
             with open(md_file, "w", encoding="utf-8") as fh:
-                fh.write(content)
+                fh.write(new_content)
         return 1
     return 0
 
@@ -115,7 +155,7 @@ def main():
     root = os.getcwd()
 
     print("=" * 60)
-    print("ADD / UPDATE TABLE OF CONTENTS  (chi muc luc, khong dung anh)")
+    print("ADD / UPDATE TABLE OF CONTENTS  v2")
     print("Thu muc:", root)
     print("Che do:", "AP DUNG (sua file)" if apply else "THU (dry-run)")
     print("=" * 60)
@@ -127,7 +167,7 @@ def main():
         for f in files:
             if f.lower().endswith(".md"):
                 md_files.append(os.path.join(dirpath, f))
-    print(f"\nTim thay {len(md_files)} file .md.")
+    print(f"\nTim thay {len(md_files)} file .md.\n")
 
     if apply:
         backup = os.path.join(root, "_backup_md",
@@ -157,4 +197,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

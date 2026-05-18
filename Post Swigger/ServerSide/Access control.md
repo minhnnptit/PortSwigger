@@ -1,5 +1,42 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Access control](#access-control)
+  - [Khái niệm](#khái-niệm)
+  - [Kiểm soát truy cập theo chiều dọc](#kiểm-soát-truy-cập-theo-chiều-dọc)
+  - [Kiểm soát truy cập theo chiều ngang](#kiểm-soát-truy-cập-theo-chiều-ngang)
+  - [Kiểm soát truy cập phụ thuộc ngữ cảnh](#kiểm-soát-truy-cập-phụ-thuộc-ngữ-cảnh)
+  - [Lỗ hổng](#lỗ-hổng)
+    - [Leo thang đặc quyền - Dọc](#leo-thang-đặc-quyền---dọc)
+      - [Chức năng không được bảo vệ](#chức-năng-không-được-bảo-vệ)
+      - [Kiểm soát dựa trên tham số](#kiểm-soát-dựa-trên-tham-số)
+      - [Cấu hình sai ở nền tảng](#cấu-hình-sai-ở-nền-tảng)
+      - [Sai lệch khi đối sánh URL](#sai-lệch-khi-đối-sánh-url)
+    - [Leo thang đặc quyền ngang](#leo-thang-đặc-quyền-ngang)
+    - [Leo thang đặc quyền ngang - dọc](#leo-thang-đặc-quyền-ngang---dọc)
+    - [Tham chiếu đối tượng trực tiếp ko an toàn (IDOR)](#tham-chiếu-đối-tượng-trực-tiếp-ko-an-toàn-idor)
+      - [Khái niệm](#khái-niệm-1)
+      - [Database](#database)
+      - [Static files](#static-files)
+    - [Quy trình nhiều bước](#quy-trình-nhiều-bước)
+    - [Referer](#referer)
+    - [Vị trí](#vị-trí)
+  - [Ngăn chặn](#ngăn-chặn)
+- [WU](#wu)
+  - [Unprotected admin functionality](#unprotected-admin-functionality)
+  - [Unprotected admin functionality with unpredictable URL](#unprotected-admin-functionality-with-unpredictable-url)
+  - [User role controlled by request parameter](#user-role-controlled-by-request-parameter)
+  - [User role can be modified in user profile](#user-role-can-be-modified-in-user-profile)
+  - [URL-based access control can be circumvented](#url-based-access-control-can-be-circumvented)
+  - [Method-based access control can be circumvented](#method-based-access-control-can-be-circumvented)
+  - [User ID controlled by request parameter](#user-id-controlled-by-request-parameter)
+  - [User ID controlled by request parameter with unpredictable user IDS](#user-id-controlled-by-request-parameter-with-unpredictable-user-ids)
+  - [User ID controlled by request parameter with data leakage in redirect](#user-id-controlled-by-request-parameter-with-data-leakage-in-redirect)
+  - [User ID controlled by request parameter with  pasword disclosure](#user-id-controlled-by-request-parameter-with--pasword-disclosure)
+  - [Insecure direct object references](#insecure-direct-object-references)
+  - [Multi-step process with no access control on one step](#multi-step-process-with-no-access-control-on-one-step)
+  - [Referer-based access control](#referer-based-access-control)
+<!-- /TOC -->
 # Access control
 ## Khái niệm
 Kiểm soát truy cập là việc áp dụng các ràng buộc về việc ai hoặc cái gì được ủy quyền thực hiện hành động hoặc truy cập tài nguyên. Trong ngữ cảnh ứng dụng web, kiểm soát truy cập phụ thuộc vào xác thực và quản lý phiên:

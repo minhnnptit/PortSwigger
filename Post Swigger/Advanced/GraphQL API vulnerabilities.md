@@ -1,5 +1,49 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [GraphQL API vulnerabilities](#graphql-api-vulnerabilities)
+  - [What is GraphQL?](#what-is-graphql)
+  - [How GraphQL works](#how-graphql-works)
+  - [What is a GraphQL schema?](#what-is-a-graphql-schema)
+  - [What are GraphQL queries?](#what-are-graphql-queries)
+  - [What are GraphQL mutations?](#what-are-graphql-mutations)
+  - [Components of queries and mutations](#components-of-queries-and-mutations)
+    - [Fields](#fields)
+    - [Arguments](#arguments)
+    - [Variables](#variables)
+    - [Aliases](#aliases)
+  - [Subscriptions](#subscriptions)
+  - [Introspection](#introspection)
+  - [Finding GraphQL endpoints](#finding-graphql-endpoints)
+    - [Universal queries](#universal-queries)
+    - [Common endpoint names](#common-endpoint-names)
+    - [Request methods](#request-methods)
+    - [Initial testing](#initial-testing)
+  - [Exploiting unsanitized arguments](#exploiting-unsanitized-arguments)
+  - [Discovering schema information](#discovering-schema-information)
+    - [Using introspection](#using-introspection)
+    - [Probing for introspection](#probing-for-introspection)
+    - [Running a full introspection query](#running-a-full-introspection-query)
+    - [Visualizing introspection results](#visualizing-introspection-results)
+    - [Suggestions](#suggestions)
+  - [Bypassing GraphQL introspection defenses](#bypassing-graphql-introspection-defenses)
+  - [Bypassing rate limiting using aliases](#bypassing-rate-limiting-using-aliases)
+  - [GraphQL CSRF](#graphql-csrf)
+  - [Preventing GraphQL attacks](#preventing-graphql-attacks)
+    - [Kiểm soát lộ schema](#kiểm-soát-lộ-schema)
+    - [Kiểm soát quyền phía server](#kiểm-soát-quyền-phía-server)
+    - [Kiểm soát complexity và operation limits](#kiểm-soát-complexity-và-operation-limits)
+    - [Phòng chống brute force](#phòng-chống-brute-force)
+    - [Phòng chống CSRF](#phòng-chống-csrf)
+    - [Giảm thông tin trong lỗi](#giảm-thông-tin-trong-lỗi)
+  - [Tóm tắt](#tóm-tắt)
+- [WU](#wu)
+  - [Accessing private GraphQL posts](#accessing-private-graphql-posts)
+  - [Accidents exposure private graphQL fields](#accidents-exposure-private-graphql-fields)
+  - [Finding a hidden GraphQL endpoint](#finding-a-hidden-graphql-endpoint)
+  - [Bypassing GraphQL brute force protections](#bypassing-graphql-brute-force-protections)
+  - [Performing CSRF exploits over GraphQL](#performing-csrf-exploits-over-graphql)
+<!-- /TOC -->
 
 # GraphQL API vulnerabilities
 

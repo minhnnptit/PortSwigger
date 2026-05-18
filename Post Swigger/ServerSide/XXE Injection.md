@@ -1,5 +1,40 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [XXE](#xxe)
+  - [XML là gì?](#xml-là-gì)
+  - [XML entities là gì?](#xml-entities-là-gì)
+  - [Document Type Definition là gì?](#document-type-definition-là-gì)
+  - [XML custom entities là gì?](#xml-custom-entities-là-gì)
+  - [XML external entities là gì?](#xml-external-entities-là-gì)
+- [Nguyên nhân](#nguyên-nhân)
+- [Kiểm thử lỗ hổng](#kiểm-thử-lỗ-hổng)
+- [Lỗ hổng](#lỗ-hổng)
+  - [**Khai thác XXE để đọc tệp từ máy chủ**](#khai-thác-xxe-để-đọc-tệp-từ-máy-chủ)
+  - [SSRF](#ssrf)
+  - [Blind XXE](#blind-xxe)
+    - [OAST](#oast)
+    - [Khai thác dữ liệu bằng OAST](#khai-thác-dữ-liệu-bằng-oast)
+    - [Khai thác dữ liệu bằng Error](#khai-thác-dữ-liệu-bằng-error)
+  - [Tái sử dụng DTD cục bộ](#tái-sử-dụng-dtd-cục-bộ)
+- [Xác định bề mặt tấn công ẩn cho XXE injection](#xác-định-bề-mặt-tấn-công-ẩn-cho-xxe-injection)
+  - [**XInclude attacks**](#xinclude-attacks)
+  - [XXE thông qua file upload](#xxe-thông-qua-file-upload)
+  - [XXE thông qua sửa đổi Content-Type](#xxe-thông-qua-sửa-đổi-content-type)
+- [Phòng tránh](#phòng-tránh)
+- [WU](#wu)
+  - [Exploiting XXE using external entities to retrieve files](#exploiting-xxe-using-external-entities-to-retrieve-files)
+  - [Exploiting XXE to perform SSRF attacks](#exploiting-xxe-to-perform-ssrf-attacks)
+  - [Blind XXE with out-of-band interaction](#blind-xxe-with-out-of-band-interaction)
+  - [Blind XXE with out-of-band interaction via XML parameter entities](#blind-xxe-with-out-of-band-interaction-via-xml-parameter-entities)
+  - [Exploiting blind XXE to exfiltrate data using a malicious external DTD](#exploiting-blind-xxe-to-exfiltrate-data-using-a-malicious-external-dtd)
+  - [Exploiting blind XXE to retrieve data via error messages](#exploiting-blind-xxe-to-retrieve-data-via-error-messages)
+  - [Exploiting XInclude to retrieve files](#exploiting-xinclude-to-retrieve-files)
+  - [Exploiting XXE via image file upload](#exploiting-xxe-via-image-file-upload)
+  - [Exploiting XXE to retrieve data by repurposing a local DTD](#exploiting-xxe-to-retrieve-data-by-repurposing-a-local-dtd)
+    - [Payload](#payload)
+<!-- /TOC -->
 
 # Giới thiệu
 

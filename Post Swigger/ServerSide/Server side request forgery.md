@@ -1,5 +1,33 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [SSRF](#ssrf)
+  - [Khái niệm](#khái-niệm)
+  - [Hậu quả](#hậu-quả)
+  - [Tấn công SSRF](#tấn-công-ssrf)
+    - [Server](#server)
+    - [Back-end System](#back-end-system)
+  - [Bảo mật](#bảo-mật)
+    - [**Blacklist-based input filters**](#blacklist-based-input-filters)
+    - [**Whitelist-based input filters**](#whitelist-based-input-filters)
+    - [Open redirection](#open-redirection)
+  - [Blind SSRF](#blind-ssrf)
+    - [Khái niệm](#khái-niệm-1)
+    - [Hậu quả](#hậu-quả-1)
+    - [Nhận biết](#nhận-biết)
+    - [Tìm bề mặt tấn công ẩn](#tìm-bề-mặt-tấn-công-ẩn)
+      - [URL - part](#url---part)
+      - [URL in data](#url-in-data)
+      - [Referer header](#referer-header)
+- [WU](#wu)
+  - [Basic SSRF against the local server](#basic-ssrf-against-the-local-server)
+  - [Basic SSRF against against another back-end system](#basic-ssrf-against-against-another-back-end-system)
+  - [Blind SSRF with out-of-band detection](#blind-ssrf-with-out-of-band-detection)
+  - [SSRF with blacklist-based input filter](#ssrf-with-blacklist-based-input-filter)
+  - [SSRF with filter bypass via open redirection vulnerability](#ssrf-with-filter-bypass-via-open-redirection-vulnerability)
+  - [Blind SSRF with Shellshock exploitation](#blind-ssrf-with-shellshock-exploitation)
+  - [SSRF with whitelist-based input filter](#ssrf-with-whitelist-based-input-filter)
+<!-- /TOC -->
 # SSRF
 ## Khái niệm
 

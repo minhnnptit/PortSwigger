@@ -1,5 +1,23 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Command Injection](#command-injection)
+  - [Khái niệm](#khái-niệm)
+  - [Chèn OS Command](#chèn-os-command)
+  - [Command phổ biến](#command-phổ-biến)
+  - [Blind OS Command Injection](#blind-os-command-injection)
+    - [Time delay](#time-delay)
+    - [Redirecting output](#redirecting-output)
+    - [OAST](#oast)
+  - [Các lệnh chèn OS Command Injection](#các-lệnh-chèn-os-command-injection)
+  - [Phòng chống](#phòng-chống)
+- [WU 5 bài](#wu-5-bài)
+    - [OS command injection - simple case](#os-command-injection---simple-case)
+    - [Blind OS command injection with time delays](#blind-os-command-injection-with-time-delays)
+    - [Blind command injection with output redirection](#blind-command-injection-with-output-redirection)
+    - [Blind OS command injection with out-of-band interaction](#blind-os-command-injection-with-out-of-band-interaction)
+    - [Blind OS command injection with out-of-band data exfiltration](#blind-os-command-injection-with-out-of-band-data-exfiltration)
+<!-- /TOC -->
 
 # Command Injection
 ## Khái niệm

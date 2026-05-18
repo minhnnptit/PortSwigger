@@ -1,5 +1,27 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Nhìn chung](#nhìn-chung)
+- [Obfuscating](#obfuscating)
+  - [**Context-specific decoding**](#context-specific-decoding)
+  - [**Decoding discrepancies**](#decoding-discrepancies)
+  - [URL Encoding](#url-encoding)
+  - [Double URL Encoding](#double-url-encoding)
+  - [HTML Encoding](#html-encoding)
+  - [XML Encoding](#xml-encoding)
+  - [Unicode Escaping](#unicode-escaping)
+  - [Hex Escaping](#hex-escaping)
+  - [Octal Escaping](#octal-escaping)
+  - [Multiple Encodings](#multiple-encodings)
+  - [SQL CHAR()](#sql-char)
+- [Burp Scanner](#burp-scanner)
+  - [**Scanning a specific request**](#scanning-a-specific-request)
+  - [**Scanning custom insertion points**](#scanning-custom-insertion-points)
+  - [**Scanning non-standard data structures**](#scanning-non-standard-data-structures)
+- [WU](#wu)
+  - [Discovering vulnerabilities quickly with targeted scanning](#discovering-vulnerabilities-quickly-with-targeted-scanning)
+  - [Scanning non-standard data structures](#scanning-non-standard-data-structures-1)
+<!-- /TOC -->
 # Nhìn chung
 
 Chúng tôi thiết kế các bài lab cho Web Security Academy sao cho thực tế nhất có thể, nhưng bạn cần lưu ý rằng mỗi bài lab chỉ minh họa một biến thể khả dĩ của một lỗ hổng nhất định. Trên thực tế, việc quan trọng là phải nhận diện những biểu hiện hơi khác nhau của cùng một lỗi gốc và biết cách điều chỉnh các kỹ thuật bạn đã học cho phù hợp.

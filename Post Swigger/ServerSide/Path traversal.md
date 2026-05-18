@@ -1,5 +1,19 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Path traversal](#path-traversal)
+  - [Khái niệm](#khái-niệm)
+  - [Đọc tệp](#đọc-tệp)
+  - [Lỗi phổ biến](#lỗi-phổ-biến)
+  - [Phòng chống](#phòng-chống)
+- [WU 6 lab](#wu-6-lab)
+    - [File path traversal - simple case](#file-path-traversal---simple-case)
+    - [File path traversal, traversal sequences blocked with absolute path bypass](#file-path-traversal-traversal-sequences-blocked-with-absolute-path-bypass)
+    - [File path traversal, traversal sequences stripped non-recursively](#file-path-traversal-traversal-sequences-stripped-non-recursively)
+    - [File path traversal, traversal sequences stripped with superfluous URL-decode](#file-path-traversal-traversal-sequences-stripped-with-superfluous-url-decode)
+    - [File path traversal, validation of start of path](#file-path-traversal-validation-of-start-of-path)
+    - [File path traversal, validation of file extension with null byte bypass](#file-path-traversal-validation-of-file-extension-with-null-byte-bypass)
+<!-- /TOC -->
 # Path traversal
 ## Khái niệm
 Path traversal (còn gọi là directory traversal) là kiểu lỗ hổng cho phép kẻ tấn công đọc các tệp (file) tùy ý trên máy chủ đang chạy ứng dụng. Những tệp này có thể bao gồm:

@@ -1,5 +1,50 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Web LLM attacks (Tấn công vào ứng dụng web tích hợp LLM)](#web-llm-attacks-tấn-công-vào-ứng-dụng-web-tích-hợp-llm)
+  - [Tổng quan](#tổng-quan)
+  - [LLM là gì?](#llm-là-gì)
+  - [Vì sao LLM trong web app nguy hiểm?](#vì-sao-llm-trong-web-app-nguy-hiểm)
+  - [Những kiểu tấn công chính vào Web LLM](#những-kiểu-tấn-công-chính-vào-web-llm)
+    - [1. Trích xuất dữ liệu nhạy cảm](#1-trích-xuất-dữ-liệu-nhạy-cảm)
+    - [2. Lợi dụng LLM để gọi API nguy hiểm](#2-lợi-dụng-llm-để-gọi-api-nguy-hiểm)
+    - [3. Prompt injection](#3-prompt-injection)
+      - [Direct prompt injection](#direct-prompt-injection)
+      - [Indirect prompt injection](#indirect-prompt-injection)
+    - [4. Excessive agency](#4-excessive-agency)
+    - [5. Chaining vulnerabilities](#5-chaining-vulnerabilities)
+    - [6. Insecure output handling](#6-insecure-output-handling)
+  - [Bề mặt tấn công cần map khi kiểm thử](#bề-mặt-tấn-công-cần-map-khi-kiểm-thử)
+    - [1. LLM nhận đầu vào từ đâu?](#1-llm-nhận-đầu-vào-từ-đâu)
+    - [2. LLM có thể truy cập gì?](#2-llm-có-thể-truy-cập-gì)
+    - [3. LLM có thể làm gì?](#3-llm-có-thể-làm-gì)
+    - [4. Output được dùng ở đâu?](#4-output-được-dùng-ở-đâu)
+  - [Dấu hiệu một hệ thống LLM có rủi ro cao](#dấu-hiệu-một-hệ-thống-llm-có-rủi-ro-cao)
+  - [Ý tưởng test thực tế](#ý-tưởng-test-thực-tế)
+    - [Kiểm tra rò rỉ prompt / hidden instruction](#kiểm-tra-rò-rỉ-prompt--hidden-instruction)
+    - [Kiểm tra tool/API access](#kiểm-tra-toolapi-access)
+    - [Kiểm tra indirect prompt injection](#kiểm-tra-indirect-prompt-injection)
+    - [Kiểm tra output handling](#kiểm-tra-output-handling)
+  - [Chủ đề mở rộng: AI-powered scanner vulnerabilities](#chủ-đề-mở-rộng-ai-powered-scanner-vulnerabilities)
+  - [Phòng thủ trước Web LLM attacks](#phòng-thủ-trước-web-llm-attacks)
+    - [1. Xem mọi API cấp cho LLM là public](#1-xem-mọi-api-cấp-cho-llm-là-public)
+    - [2. Không đưa dữ liệu nhạy cảm cho LLM nếu không thật sự cần](#2-không-đưa-dữ-liệu-nhạy-cảm-cho-llm-nếu-không-thật-sự-cần)
+    - [3. Không dựa vào prompt để chặn tấn công](#3-không-dựa-vào-prompt-để-chặn-tấn-công)
+    - [4. Giảm quyền của model](#4-giảm-quyền-của-model)
+    - [5. Tách dữ liệu không tin cậy khỏi instruction](#5-tách-dữ-liệu-không-tin-cậy-khỏi-instruction)
+    - [6. Xác thực lại phía server](#6-xác-thực-lại-phía-server)
+    - [7. Xử lý output an toàn](#7-xử-lý-output-an-toàn)
+  - [Kết luận](#kết-luận)
+- [WU](#wu)
+  - [Exploiting LLM APIs with excessive agency](#exploiting-llm-apis-with-excessive-agency)
+  - [Exploiting AI agents to perform destructive actions](#exploiting-ai-agents-to-perform-destructive-actions)
+  - [Exploiting vulnerabilities in LLM APIs](#exploiting-vulnerabilities-in-llm-apis)
+  - [Exploiting AI agents to exfiltrate sensitive information](#exploiting-ai-agents-to-exfiltrate-sensitive-information)
+  - [Indirect prompt injection](#indirect-prompt-injection-1)
+  - [Bypassing AI agents defenses to exfiltrate sensitive information](#bypassing-ai-agents-defenses-to-exfiltrate-sensitive-information)
+  - [Exploiting AI agents to trigger secondary vul](#exploiting-ai-agents-to-trigger-secondary-vul)
+  - [Exploiting insecure output handling in LLMs](#exploiting-insecure-output-handling-in-llms)
+<!-- /TOC -->
 
 # Web LLM attacks (Tấn công vào ứng dụng web tích hợp LLM)
 
@@ -502,8 +547,6 @@ Do not perform any other tests.
 ![](../../image/Pasted%20image%2020260513011911.png)
 
 
-
-
 ## Indirect prompt injection
 - Mục tiêu là lợi dụng **indirect prompt injection** trong live chat để khiến ứng dụng **xóa `carlos`**. PortSwigger ghi rõ `carlos` thường hỏi về sản phẩm **Lightweight "l33t" Leather Jacket**, và lab dùng **live LLM**
 ![](../../image/Pasted%20image%2020260512234211.png)
@@ -533,7 +576,6 @@ Do not perform any other tests.
 
 Vì PortSwigger nói `carlos` thường hỏi về chiếc leather jacket, khi chatbot đọc review độc hại trong lúc trả lời cho `carlos`, nó sẽ gọi **Delete Account API** từ phiên của `carlos`, từ đó xóa `carlos` và solve lab.
 ![](../../image/Pasted%20image%2020260513100409.png)
-
 
 
 ## Bypassing AI agents defenses to exfiltrate sensitive information

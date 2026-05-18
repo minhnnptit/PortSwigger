@@ -1,5 +1,80 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Giới thiệu chung](#giới-thiệu-chung)
+- [Khái niệm](#khái-niệm)
+- [Diễn biến](#diễn-biến)
+- [Nguyên nhân](#nguyên-nhân)
+- [Xây dựng cuộc tấn công](#xây-dựng-cuộc-tấn-công)
+  - [CL.TE](#clte)
+  - [[TE.CL](http://TE.CL)](#teclhttptecl)
+  - [TE.TE](#tete)
+- [Kiểm thử](#kiểm-thử)
+  - [CL.TE](#clte-1)
+  - [[TE.CL](http://TE.CL)](#teclhttptecl-1)
+- [Xác nhận](#xác-nhận)
+  - [CL.TE](#clte-2)
+  - [[TE.CL](http://TE.CL)](#teclhttptecl-2)
+- [Xâm nhập](#xâm-nhập)
+  - [Vượt cơ chế bảo vệ](#vượt-cơ-chế-bảo-vệ)
+  - [Chỉnh sửa HTTP Request](#chỉnh-sửa-http-request)
+  - [Vượt xác thực người dùng](#vượt-xác-thực-người-dùng)
+  - [Thu thập request](#thu-thập-request)
+  - [XSS](#xss)
+  - [On-site → Open](#on-site--open)
+    - [Root-relative → Open](#root-relative--open)
+  - [Web cache Poisoning](#web-cache-poisoning)
+  - [Web cache Deception](#web-cache-deception)
+- [Xâm nhập nâng cao](#xâm-nhập-nâng-cao)
+  - [HTTP/2](#http2)
+    - [Message length](#message-length)
+    - [**HTTP/2 downgrading**](#http2-downgrading)
+    - [[H2.CL](http://H2.CL)](#h2clhttph2cl)
+    - [H2.TE](#h2te)
+    - [HTTP/2 ẩn](#http2-ẩn)
+    - [**HTTP/2-exclusive vectors**](#http2-exclusive-vectors)
+  - [**Response queue**](#response-queue)
+    - [Hậu quả](#hậu-quả)
+    - [Xây dựng cuộc tấn công](#xây-dựng-cuộc-tấn-công-1)
+  - [HTTP/2 request splitting](#http2-request-splitting)
+    - [Viết lại FE](#viết-lại-fe)
+  - [**HTTP request tunnelling**](#http-request-tunnelling)
+    - [HTTP/2](#http2-1)
+    - [**Leaking internal headers**](#leaking-internal-headers)
+    - [**Blind request**](#blind-request)
+    - [**Non-blind request**](#non-blind-request)
+  - [Web cache](#web-cache)
+  - [[0.CL](http://0.CL)](#0clhttp0cl)
+- [**Browser-powered**](#browser-powered)
+  - [CL.0](#cl0)
+    - [Kiểm thử](#kiểm-thử-1)
+    - [Kích hoạt](#kích-hoạt)
+    - [Khai thác](#khai-thác)
+    - [H2.0](#h20)
+    - [Bảo mật](#bảo-mật)
+  - [Tấn công desync](#tấn-công-desync)
+    - [Khái niệm](#khái-niệm-1)
+    - [Kiểm thử](#kiểm-thử-2)
+    - [Xâm nhập](#xâm-nhập-1)
+    - [Pause-based desync](#pause-based-desync)
+- [Bảo mật](#bảo-mật-1)
+- [WU](#wu)
+  - [HTTP request smuggling, confirming a CL.TE vulnerability via differential responses](#http-request-smuggling-confirming-a-clte-vulnerability-via-differential-responses)
+  - [HTTP request smuggling, confirming a TE.CL vulnerability via differential responses](#http-request-smuggling-confirming-a-tecl-vulnerability-via-differential-responses)
+  - [Exploiting HTTP request smuggling to bypass front-end security controls, CL.TE vulnerability](#exploiting-http-request-smuggling-to-bypass-front-end-security-controls-clte-vulnerability)
+  - [Exploiting HTTP request smuggling to bypass front-end security controls, TE.CL vulnerability](#exploiting-http-request-smuggling-to-bypass-front-end-security-controls-tecl-vulnerability)
+  - [Exploiting HTTP request smuggling to reveal front-end request rewriting](#exploiting-http-request-smuggling-to-reveal-front-end-request-rewriting)
+  - [Exploiting HTTP request smuggling to capture other users' requests](#exploiting-http-request-smuggling-to-capture-other-users-requests)
+  - [Exploiting HTTP request smuggling to deliver reflected XSS](#exploiting-http-request-smuggling-to-deliver-reflected-xss)
+  - [Response queue poisoning via H2.TE request smuggling](#response-queue-poisoning-via-h2te-request-smuggling)
+  - [HTTP request smuggling, basic CL.TE vulnerability](#http-request-smuggling-basic-clte-vulnerability)
+  - [HTTP request smuggling, basic TE.CL vulnerability](#http-request-smuggling-basic-tecl-vulnerability)
+  - [HTTP request smuggling, obfuscating the TE header](#http-request-smuggling-obfuscating-the-te-header)
+  - [CL.0 request smuggling](#cl0-request-smuggling)
+  - [H2.CL request smuggling](#h2cl-request-smuggling)
+  - [HTTP/2 request smuggling via CRLF injection](#http2-request-smuggling-via-crlf-injection)
+  - [HTTP/2 request splitting via CRLF injection](#http2-request-splitting-via-crlf-injection)
+<!-- /TOC -->
 
 # Giới thiệu chung
 
@@ -1513,7 +1588,6 @@ Chúng ta đã từng xem qua một số kỹ thuật **làm nhiễu header (hea
 Bạn có thể lợi dụng lỗ hổng CL.0 để thực hiện cùng các cuộc tấn công request smuggling phía máy chủ mà chúng ta đã đề cập trong các tài liệu request smuggling trước đó. Hãy thử điều này với lab sau.
 
 
-
 ### H2.0
 
 ---
@@ -2229,7 +2303,6 @@ Foo: x
 ```
 
 Tóm lại: Khi body chứa GET /hopefully404, response của request thứ hai trả 404, chứng minh body của request đầu bị bỏ lại và được xử lý như prefix của request sau. Sau đó tôi đổi request smuggled thành GET /admin để truy cập admin panel, rồi đổi thành GET /admin/delete?username=carlos để xóa user Carlos.
-
 
 
 ## H2.CL request smuggling

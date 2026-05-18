@@ -1,5 +1,29 @@
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
+
+- [Race condition](#race-condition)
+  - [Limit overrun](#limit-overrun)
+  - [Burp repeater](#burp-repeater)
+  - [Turbo Intruder](#turbo-intruder)
+  - [Hidden multi-step sequences](#hidden-multi-step-sequences)
+  - [Phương pháp](#phương-pháp)
+    - [Dự đoán va chạm](#dự-đoán-va-chạm)
+    - [Thăm dò manh mối](#thăm-dò-manh-mối)
+    - [Chứng minh khái niệm](#chứng-minh-khái-niệm)
+  - [Multi-endpoint](#multi-endpoint)
+  - [Single-endpoint](#single-endpoint)
+  - [Session-based locking mechanisms](#session-based-locking-mechanisms)
+  - [Partial construction](#partial-construction)
+  - [Time-sensitive](#time-sensitive)
+  - [Phòng tránh](#phòng-tránh)
+- [WU](#wu)
+  - [Limit overrun race conditions](#limit-overrun-race-conditions)
+  - [Multi-endpoint race conditions](#multi-endpoint-race-conditions)
+  - [Bypassing rate limits via race conditions](#bypassing-rate-limits-via-race-conditions)
+  - [Single-endpoint race conditions](#single-endpoint-race-conditions)
+  - [Exploiting time-sensitive vulnerabilities](#exploiting-time-sensitive-vulnerabilities)
+  - [Partial construction race conditions](#partial-construction-race-conditions)
+<!-- /TOC -->
 
 # Race condition
 ## Limit overrun

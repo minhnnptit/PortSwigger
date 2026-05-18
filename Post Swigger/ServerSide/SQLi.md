@@ -1,8 +1,13 @@
 
 
-```table-of-contents
-```
+<!-- TOC -->
+## Mục lục
 
+- [SQL Injection](#sql-injection)
+  - [SQLI là gì?](#sqli-là-gì)
+  - [PHÁT HIỆN SQLI](#phát-hiện-sqli)
+  - [Truy xuất dữ liệu ẩn - retrieval hidden data](#truy-xuất-dữ-liệu-ẩn---retrieval-hidden-data)
+<!-- /TOC -->
 
 
 # SQL Injection
