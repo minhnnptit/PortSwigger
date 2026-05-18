@@ -1,23 +1,4 @@
-```table-of-contents
-```
-# OAuth là gì?
-
-**OAuth 2.0** là một framework cho phép một ứng dụng truy cập một phần dữ liệu hoặc chức năng của người dùng trên một dịch vụ khác mà không cần biết mật khẩu của người dùng.
-
-Ví dụ quen thuộc:
-
-- Đăng nhập bằng Google.
-- Đăng nhập bằng Facebook.
-- Cho một app quyền đọc danh bạ, email, ảnh, profile.
-- Cho một công cụ quản lý lịch quyền đọc/sửa Google Calendar.
-
-Ý tưởng cốt lõi:
-
-> Người dùng không đưa mật khẩu Google/Facebook/GitHub cho website thứ ba. Thay vào đó, OAuth provider cấp cho website đó một **access token** với quyền hạn cụ thể.
-
-Ví dụ:
-
-```text
+text
 Bạn muốn đăng nhập vào website A bằng tài khoản Google.
 Website A không biết mật khẩu Google của bạn.
 Google chỉ cấp cho website A một token để lấy thông tin cần thiết, ví dụ email và tên.
@@ -68,7 +49,6 @@ OAuth provider thường có 2 thành phần logic:
 |---|---|
 | **Authorization server** | Xử lý đăng nhập, consent, cấp authorization code hoặc access token |
 | **Resource server** | Chứa API dữ liệu user, ví dụ endpoint `/userinfo` |
-
 
 
 ## OAuth 2.0 hoạt động tổng quát như thế nào?
@@ -552,7 +532,6 @@ Nếu attacker sửa email:
 ```
 
 và server không xác minh token với provider, attacker có thể đăng nhập thành victim.
-
 
 
 Server đáng lẽ phải hỏi OAuth provider:
@@ -1219,7 +1198,6 @@ Nên làm:
 ```
 
 
-
 **PKCE** là cơ chế tăng bảo mật cho Authorization Code Flow, đặc biệt với public client không giữ được `client_secret` an toàn.
 
 Ý tưởng đơn giản:
@@ -1294,6 +1272,56 @@ Các lỗi chính:
 ```
 
 # WU
+
+<!-- TOC -->
+## Mục lục
+
+- [OAuth dùng để authorization hay authentication?](#oauth-dùng-để-authorization-hay-authentication)
+- [Các vai trò chính trong OAuth](#các-vai-trò-chính-trong-oauth)
+- [OAuth 2.0 hoạt động tổng quát như thế nào?](#oauth-20-hoạt-động-tổng-quát-như-thế-nào)
+- [OAuth grant type là gì?](#oauth-grant-type-là-gì)
+- [OAuth scope là gì?](#oauth-scope-là-gì)
+- [Authorization Code Grant](#authorization-code-grant)
+- [Implicit Grant](#implicit-grant)
+- [OAuth authentication](#oauth-authentication)
+- [Cách nhận biết website đang dùng OAuth](#cách-nhận-biết-website-đang-dùng-oauth)
+- [Recon OAuth service](#recon-oauth-service)
+- [Vì sao OAuth authentication có lỗ hổng?](#vì-sao-oauth-authentication-có-lỗ-hổng)
+  - [OAuth rất linh hoạt](#oauth-rất-linh-hoạt)
+  - [OAuth có ít cơ chế bảo vệ mặc định](#oauth-có-ít-cơ-chế-bảo-vệ-mặc-định)
+  - [Dữ liệu nhạy cảm có thể đi qua browser](#dữ-liệu-nhạy-cảm-có-thể-đi-qua-browser)
+  - [Client app thường hiểu sai OAuth](#client-app-thường-hiểu-sai-oauth)
+- [Các nhóm lỗ hổng OAuth authentication](#các-nhóm-lỗ-hổng-oauth-authentication)
+- [Lỗi: Improper implementation of implicit grant type](#lỗi-improper-implementation-of-implicit-grant-type)
+- [Lỗi: Flawed CSRF protection](#lỗi-flawed-csrf-protection)
+- [Lỗi: Leaking authorization codes and access tokens](#lỗi-leaking-authorization-codes-and-access-tokens)
+  - [Lỗi validate `redirect_uri`](#lỗi-validate-redirect_uri)
+  - [Leak qua open redirect](#leak-qua-open-redirect)
+  - [Leak qua Referer header](#leak-qua-referer-header)
+  - [Leak token trong implicit flow](#leak-token-trong-implicit-flow)
+- [Flawed scope validation](#flawed-scope-validation)
+- [Lỗi: Unverified user registration](#lỗi-unverified-user-registration)
+- [OpenID Connect là gì?](#openid-connect-là-gì)
+- [OpenID Connect hoạt động như thế nào?](#openid-connect-hoạt-động-như-thế-nào)
+- [Cách nhận biết OpenID Connect](#cách-nhận-biết-openid-connect)
+- [Lỗ hổng OpenID Connect](#lỗ-hổng-openid-connect)
+- [Checklist test OAuth bằng Burp Suite](#checklist-test-oauth-bằng-burp-suite)
+  - [Xác định flow](#xác-định-flow)
+  - [Ghi lại tham số quan trọng](#ghi-lại-tham-số-quan-trọng)
+  - [Kiểm tra redirect_uri](#kiểm-tra-redirect_uri)
+  - [Kiểm tra state](#kiểm-tra-state)
+  - [Kiểm tra implicit flow](#kiểm-tra-implicit-flow)
+  - [Kiểm tra leak code/token](#kiểm-tra-leak-codetoken)
+  - [Kiểm tra scope](#kiểm-tra-scope)
+  - [Kiểm tra OpenID Connect](#kiểm-tra-openid-connect)
+- [Cách phòng chống OAuth vulnerabilities](#cách-phòng-chống-oauth-vulnerabilities)
+- [Tóm tắt nhanh để nhớ](#tóm-tắt-nhanh-để-nhớ)
+- [Authentication bypass via OAuth implicit flow](#authentication-bypass-via-oauth-implicit-flow)
+- [SSRF via openID dynamic client registration](#ssrf-via-openid-dynamic-client-registration)
+- [Forced OAuth profile linking](#forced-oauth-profile-linking)
+- [OAuth account hijacking via redirect_uri](#oauth-account-hijacking-via-redirect_uri)
+- [Stealing OAuth access tokens via an open redirect](#stealing-oauth-access-tokens-via-an-open-redirect)
+<!-- /TOC -->
 - [x] Authentication bypass via OAuth implicit flow
 - [x] Forced OAuth profile linking
 - [x] OAuth account hijacking via redirect_uri

@@ -1,18 +1,4 @@
-```table-of-contents
-```
-# Insecure Deserialization 
-
-## 1. Insecure deserialization là gì?
-
-**Serialization** là quá trình chuyển một object/dữ liệu trong bộ nhớ thành dạng có thể lưu trữ hoặc truyền đi, ví dụ chuỗi text, byte stream, cookie, session token, file cache.
-
-**Deserialization** là quá trình ngược lại: lấy dữ liệu serialized và khôi phục lại thành object trong ứng dụng.
-
-**Insecure deserialization** xảy ra khi ứng dụng **deserialize dữ liệu do user kiểm soát** mà không kiểm tra an toàn. Nếu attacker sửa được serialized object trước khi server deserialize, họ có thể thay đổi logic ứng dụng, leo quyền, đọc/xóa file, gây DoS, hoặc trong trường hợp nghiêm trọng là RCE.
-
-Ví dụ đơn giản:
-
-```text
+text
 Cookie chứa object user đã serialize:
 O:4:"User":2:{s:8:"username";s:6:"wiener";s:7:"isAdmin";b:0;}
 ```
@@ -823,6 +809,80 @@ Không deserialize untrusted data
 
 
 # WU
+
+<!-- TOC -->
+## Mục lục
+
+- [2. Vì sao serialization được dùng?](#2-vì-sao-serialization-được-dùng)
+- [3. Serialization vs Deserialization](#3-serialization-vs-deserialization)
+  - [Serialization](#serialization)
+  - [Deserialization](#deserialization)
+- [4. Vấn đề bảo mật nằm ở đâu?](#4-vấn-đề-bảo-mật-nằm-ở-đâu)
+- [5. Impact thường gặp](#5-impact-thường-gặp)
+- [6. Dấu hiệu nhận biết serialized data](#6-dấu-hiệu-nhận-biết-serialized-data)
+  - [PHP serialized object](#php-serialized-object)
+  - [Java serialized object](#java-serialized-object)
+  - [Python pickle](#python-pickle)
+  - [.NET](#net)
+- [7. Kỹ thuật 1 — Sửa thuộc tính object](#7-kỹ-thuật-1--sửa-thuộc-tính-object)
+  - [Cốt lõi](#cốt-lõi)
+  - [Writeup mẫu ngắn](#writeup-mẫu-ngắn)
+- [8. Kỹ thuật 2 — Sửa kiểu dữ liệu](#8-kỹ-thuật-2--sửa-kiểu-dữ-liệu)
+  - [Cốt lõi](#cốt-lõi-1)
+  - [Phòng chống](#phòng-chống)
+- [9. Kỹ thuật 3 — Lạm dụng chức năng hợp lệ của ứng dụng](#9-kỹ-thuật-3--lạm-dụng-chức-năng-hợp-lệ-của-ứng-dụng)
+  - [Cốt lõi](#cốt-lõi-2)
+- [10. Magic methods là gì?](#10-magic-methods-là-gì)
+  - [PHP](#php)
+  - [Java](#java)
+- [11. Gadget là gì?](#11-gadget-là-gì)
+  - [Gadget chain / POP chain](#gadget-chain--pop-chain)
+  - [Cốt lõi](#cốt-lõi-3)
+- [12. PHP deserialization format cơ bản](#12-php-deserialization-format-cơ-bản)
+- [13. PHP magic method example](#13-php-magic-method-example)
+- [14. PHAR deserialization là gì?](#14-phar-deserialization-là-gì)
+  - [Cốt lõi](#cốt-lõi-4)
+- [15. Java deserialization](#15-java-deserialization)
+  - [ysoserial](#ysoserial)
+- [16. Các bước kiểm thử Insecure Deserialization](#16-các-bước-kiểm-thử-insecure-deserialization)
+  - [Bước 1 — Tìm serialized data](#bước-1--tìm-serialized-data)
+  - [Bước 2 — Decode](#bước-2--decode)
+  - [Bước 3 — Sửa field đơn giản](#bước-3--sửa-field-đơn-giản)
+  - [Bước 4 — Encode lại đúng format](#bước-4--encode-lại-đúng-format)
+  - [Bước 5 — Kiểm tra integrity/signature](#bước-5--kiểm-tra-integritysignature)
+  - [Bước 6 — Tìm gadget/magic method](#bước-6--tìm-gadgetmagic-method)
+- [17. Tools hữu ích](#17-tools-hữu-ích)
+  - [Burp Suite](#burp-suite)
+  - [Hackvertor](#hackvertor)
+  - [PHPGGC](#phpggc)
+  - [ysoserial](#ysoserial-1)
+  - [SerializationDumper](#serializationdumper)
+- [18. Các lỗi thường gặp khi làm lab](#18-các-lỗi-thường-gặp-khi-làm-lab)
+  - [18.1 Quên sửa string length PHP](#181-quên-sửa-string-length-php)
+  - [18.2 Sửa đúng nhưng quên encode lại](#182-sửa-đúng-nhưng-quên-encode-lại)
+  - [18.3 Payload bị signature chặn](#183-payload-bị-signature-chặn)
+  - [18.4 Nhầm giữa exploit local và victim](#184-nhầm-giữa-exploit-local-và-victim)
+  - [18.5 Gadget chain không tồn tại](#185-gadget-chain-không-tồn-tại)
+- [19. Phòng chống Insecure Deserialization](#19-phòng-chống-insecure-deserialization)
+  - [19.1 Không deserialize dữ liệu không tin cậy](#191-không-deserialize-dữ-liệu-không-tin-cậy)
+  - [19.2 Ký dữ liệu serialized](#192-ký-dữ-liệu-serialized)
+  - [19.3 Validate schema sau khi parse](#193-validate-schema-sau-khi-parse)
+  - [19.4 Không deserialize arbitrary class](#194-không-deserialize-arbitrary-class)
+  - [19.5 Tránh magic method nguy hiểm](#195-tránh-magic-method-nguy-hiểm)
+  - [19.6 Cập nhật dependency](#196-cập-nhật-dependency)
+  - [19.7 Giám sát và logging](#197-giám-sát-và-logging)
+- [20. Checklist học/làm lab](#20-checklist-họclàm-lab)
+- [21. Mẫu writeup chung](#21-mẫu-writeup-chung)
+- [22. Tóm tắt cực ngắn](#22-tóm-tắt-cực-ngắn)
+- [Modifying serialized objects](#modifying-serialized-objects)
+- [Modifying serialized data types](#modifying-serialized-data-types)
+- [Using application functionality to exploit insecure deserialization](#using-application-functionality-to-exploit-insecure-deserialization)
+- [Arbitrary object injection in PHP](#arbitrary-object-injection-in-php)
+- [gọi là arbitrary object injection?](#gọi-là-arbitrary-object-injection)
+- [Exploiting Java deserialization with Apache Commons](#exploiting-java-deserialization-with-apache-commons)
+- [Exploiting PHP deserialization with a pre-built gadget chain](#exploiting-php-deserialization-with-a-pre-built-gadget-chain)
+- [Exploiting Ruby deserialization using a documented gadget chain](#exploiting-ruby-deserialization-using-a-documented-gadget-chain)
+<!-- /TOC -->
 - [ ] Modifying serialized objects
 - [ ] Modifying serialized data types
 - [ ] Using application functionality to exploit insecure deserialization

@@ -1,16 +1,4 @@
-```table-of-contents
-```
-# API testing
 
-## API recon
-
----
-
-Để bắt đầu kiểm thử API, trước tiên bạn cần thu thập càng nhiều thông tin về API càng tốt, nhằm xác định **bề mặt tấn công (attack surface)** của nó.
-
-Bước đầu tiên là **xác định các endpoint của API**. Endpoint là những vị trí mà API nhận request liên quan đến một tài nguyên (resource) cụ thể trên server. Ví dụ, hãy xem xét request sau:
-
-```
 GET /api/books HTTP/1.1
 Host: example.com
 ```
@@ -605,6 +593,27 @@ Burp bao gồm các công cụ tự động có thể giúp bạn phát hiện c
 - Đảm bảo rằng **tất cả các đầu vào khác từ người dùng được mã hóa** trước khi đưa vào request phía server.
 - Đồng thời, đảm bảo rằng **mọi đầu vào tuân thủ đúng định dạng và cấu trúc** mà ứng dụng mong đợi.
 # WU
+
+<!-- TOC -->
+## Mục lục
+
+- [**API documentation**](#api-documentation)
+- [**Identifying API endpoints**](#identifying-api-endpoints)
+- [**Finding hidden parameters**](#finding-hidden-parameters)
+- [**Mass assignment vulnerabilities**](#mass-assignment-vulnerabilities)
+- [**Preventing vulnerabilities in APIs**](#preventing-vulnerabilities-in-apis)
+- [**Server-side parameter pollution**](#server-side-parameter-pollution)
+  - [**Query string**](#query-string)
+  - [REST Path](#rest-path)
+  - [**Structured data formats**](#structured-data-formats)
+- [Tools](#tools)
+- [Ngăn chặn Server-Side Parameter Pollution](#ngăn-chặn-server-side-parameter-pollution)
+- [Exploiting an API endpoint using documentation](#exploiting-an-api-endpoint-using-documentation)
+- [Exploiting server-side parameter pollution in a query string](#exploiting-server-side-parameter-pollution-in-a-query-string)
+- [Finding and exploiting an unused API endpoint](#finding-and-exploiting-an-unused-api-endpoint)
+- [Exploiting a mass assignment vulnerability](#exploiting-a-mass-assignment-vulnerability)
+- [Exploiting server-side parameter pollution in a REST URL](#exploiting-server-side-parameter-pollution-in-a-rest-url)
+<!-- /TOC -->
 
 - [ ] Exploiting an API endpoint using documentation
 - [ ] Exploiting unused API endpoint

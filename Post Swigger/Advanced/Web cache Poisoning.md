@@ -1,89 +1,4 @@
-```table-of-contents
-```
 
-# Khái niệm
-
-Web cache poisoning (đầu độc bộ nhớ đệm web) là một kỹ thuật nâng cao, trong đó kẻ tấn công khai thác hành vi của máy chủ web và bộ nhớ đệm (cache) để một phản hồi HTTP độc hại được phục vụ cho những người dùng khác.
-
-Về cốt lõi, web cache poisoning gồm hai giai đoạn. Trước hết, kẻ tấn công phải tìm cách khiến máy chủ back-end tạo ra một phản hồi vô tình chứa một loại payload nguy hiểm nào đó. Khi đã thành công, chúng cần bảo đảm phản hồi này được lưu vào bộ nhớ đệm và sau đó được phục vụ cho các nạn nhân mục tiêu.
-
-Một bộ nhớ đệm bị đầu độc có thể trở thành phương tiện gây hại nghiêm trọng để phân phối nhiều kiểu tấn công khác nhau, khai thác các lỗ hổng như XSS, chèn JavaScript, chuyển hướng mở (open redirection), v.v.
-# Hoạt động
-
-
-Để hiểu vì sao phát sinh các lỗ hổng web cache poisoning, điều quan trọng là phải nắm được kiến thức cơ bản về cách bộ nhớ đệm (web cache) vận hành.
-
-Nếu máy chủ phải gửi một phản hồi mới cho từng yêu cầu (HTTP request) riêng lẻ, điều này rất có thể sẽ làm quá tải máy chủ, dẫn đến độ trễ và trải nghiệm người dùng kém, đặc biệt trong các giai đoạn cao điểm. Caching chủ yếu là một phương thức nhằm giảm bớt các vấn đề như vậy.
-
-Cache nằm giữa máy chủ và người dùng, nơi nó lưu (cache) các phản hồi cho những yêu cầu cụ thể, thường trong một khoảng thời gian cố định. Nếu một người dùng khác gửi một yêu cầu tương đương, cache chỉ đơn giản phục vụ trực tiếp cho người dùng một bản sao của phản hồi đã được lưu, không cần bất kỳ tương tác nào từ back-end. Điều này giúp giảm tải đáng kể cho máy chủ bằng cách giảm số lượng yêu cầu trùng lặp mà máy chủ phải xử lý.
-![](../../image/Pasted%20image%2020260507105603.png)
-
-## Cache keys
-
-
-Khi cache nhận một yêu cầu HTTP, trước tiên nó phải xác định xem có một phản hồi đã được lưu mà nó có thể phục vụ trực tiếp hay không, hoặc nó phải chuyển tiếp yêu cầu để back-end xử lý. Cache nhận diện các yêu cầu tương đương bằng cách so sánh một tập con được định nghĩa trước của các thành phần trong yêu cầu, gọi chung là “cache key”. Thông thường, phần này sẽ bao gồm dòng yêu cầu (request line) và header Host. Những thành phần của yêu cầu không nằm trong cache key được gọi là “unkeyed”.
-
-Nếu cache key của một yêu cầu đến khớp với key của một yêu cầu trước đó, thì cache xem chúng là tương đương. Kết quả là, nó sẽ phục vụ một bản sao của phản hồi đã được lưu được tạo ra cho yêu cầu ban đầu. Điều này áp dụng cho tất cả các yêu cầu tiếp theo có cache key khớp, cho đến khi phản hồi đã lưu hết hạn.
-
-Điểm mấu chốt là các thành phần khác của yêu cầu hoàn toàn bị cache bỏ qua. Chúng ta sẽ phân tích kỹ hơn tác động của hành vi này ở phần sau.
-
-# Hậu quả
-
-Tác động của web cache poisoning phụ thuộc nhiều vào hai yếu tố chính:
-
-- **Kẻ tấn công thực sự có thể đưa những gì vào cache thành công**
-    
-    Vì bộ nhớ đệm bị đầu độc chủ yếu là phương tiện phân phối thay vì một cuộc tấn công độc lập, nên tác động của web cache poisoning gắn chặt với mức độ nguy hại của payload được tiêm. Cũng như hầu hết các kiểu tấn công khác, web cache poisoning có thể được kết hợp với các tấn công khác để leo thang mức độ ảnh hưởng hơn nữa.
-    
-- **Lượng truy cập của trang bị ảnh hưởng**
-    
-    Phản hồi bị đầu độc chỉ được phục vụ cho người dùng truy cập trang bị ảnh hưởng trong khi cache đang bị đầu độc. Do đó, tác động có thể dao động từ không đáng kể đến rất lớn tùy thuộc vào mức độ phổ biến của trang. Ví dụ, nếu kẻ tấn công đầu độc được phản hồi được cache của trang chủ một website lớn, cuộc tấn công có thể ảnh hưởng đến hàng nghìn người dùng mà không cần bất kỳ tương tác tiếp theo nào từ kẻ tấn công.
-    
-
-> **Lưu ý** Thời lượng lưu của một mục cache không nhất thiết ảnh hưởng đến tác động của web cache poisoning. Một cuộc tấn công thường có thể được viết script để đầu độc lại cache vô thời hạn.
-
-# Xây dựng cuộc tấn công
-
-Nói chung, việc xây dựng một cuộc tấn công web cache poisoning cơ bản gồm các bước sau:
-
-- Xác định và đánh giá các đầu vào không được đưa vào khóa cache (unkeyed inputs)
-- Khiến máy chủ back-end phát sinh một phản hồi có hại
-- Làm cho phản hồi đó được lưu vào bộ nhớ đệm (cached)
-
-## Identify and evaluate unkeyed inputs
-
-Bất kỳ cuộc tấn công web cache poisoning nào cũng dựa vào việc thao túng các đầu vào không được đưa vào khóa cache (unkeyed), chẳng hạn như các header. Bộ nhớ đệm web bỏ qua các đầu vào unkeyed khi quyết định có phục vụ một phản hồi đã được lưu cache cho người dùng hay không. Hành vi này có nghĩa là bạn có thể dùng chúng để chèn payload và tạo ra một phản hồi “bị đầu độc” mà, nếu được cache, sẽ được phục vụ cho tất cả người dùng có yêu cầu trùng khớp cache key. Do đó, bước đầu tiên khi xây dựng một cuộc tấn công web cache poisoning là xác định các đầu vào unkeyed mà máy chủ hỗ trợ.
-
-Bạn có thể xác định các đầu vào unkeyed thủ công bằng cách thêm các đầu vào ngẫu nhiên vào yêu cầu và quan sát xem chúng có ảnh hưởng đến phản hồi hay không. Điều này có thể hiển nhiên, như phản xạ đầu vào trực tiếp trong phản hồi, hoặc kích hoạt một phản hồi hoàn toàn khác. Tuy nhiên, đôi khi ảnh hưởng tinh vi hơn và cần một chút “phá án” để tìm ra. Bạn có thể dùng các công cụ như Burp Comparer để so sánh phản hồi có và không có đầu vào đã chèn, nhưng việc này vẫn đòi hỏi khá nhiều công sức thủ công.
-### Param Miner
-
-May mắn là bạn có thể tự động hóa quá trình xác định các đầu vào unkeyed bằng cách thêm tiện ích mở rộng Param Miner vào Burp từ BApp store. Để dùng Param Miner, bạn chỉ cần nhấp chuột phải vào một yêu cầu muốn điều tra và chọn “Guess headers”. Param Miner sau đó chạy nền, gửi các yêu cầu chứa những đầu vào khác nhau từ danh sách header tích hợp, phong phú của nó. Nếu một yêu cầu chứa đầu vào đã chèn có ảnh hưởng đến phản hồi, Param Miner sẽ ghi nhận điều này trong Burp, hoặc ở khung “Issues” nếu bạn dùng Burp Suite Professional, hoặc trong thẻ “Output” của tiện ích (“Extensions” > “Installed” > “Param Miner” > “Output”) nếu bạn dùng Burp Suite Community Edition.
-
-Ví dụ, trong ảnh chụp màn hình sau, Param Miner đã tìm thấy một header unkeyed `X-Forwarded-Host` trên trang chủ của website:
-
-> **Caution:** Khi kiểm thử các đầu vào unkeyed trên một website đang hoạt động, có rủi ro vô tình khiến cache phục vụ các phản hồi bạn tạo ra cho người dùng thật. Vì vậy, điều quan trọng là bảo đảm mọi yêu cầu của bạn đều có một cache key duy nhất để chỉ được phục vụ cho chính bạn. Để làm điều này, bạn có thể thủ công thêm một cache buster (chẳng hạn một tham số duy nhất) vào dòng yêu cầu mỗi lần gửi. Ngoài ra, nếu bạn dùng Param Miner, có các tùy chọn để tự động thêm cache buster vào mọi yêu cầu.
-
-## Gây ra phản hồi độc hại từ máy chủ back-end
-
-Khi bạn đã xác định được một đầu vào **unkeyed**, bước tiếp theo là đánh giá chính xác website xử lý đầu vào đó như thế nào. Hiểu rõ điều này là then chốt để có thể khiến máy chủ trả về một phản hồi độc hại. Nếu một đầu vào được phản xạ trong phản hồi từ máy chủ mà không được **sanitize** đúng cách, hoặc được dùng để sinh ra dữ liệu khác một cách động, thì đây là một điểm vào tiềm năng cho tấn công web cache poisoning.
-## **Làm cho phản hồi được lưu vào cache**
-
-Việc thao túng đầu vào để tạo ra phản hồi độc hại mới chỉ là một nửa chặng đường; nó không mang lại nhiều hiệu quả trừ khi bạn có thể khiến phản hồi đó được lưu vào cache, điều mà đôi khi khá khó.
-
-Việc một phản hồi có được cache hay không có thể phụ thuộc vào nhiều yếu tố, như đuôi tệp (`file extension`), kiểu nội dung (`Content-Type`), `route`, mã trạng thái (`status code`) và các `header` phản hồi. Có lẽ bạn sẽ cần dành thời gian thử nghiệm các yêu cầu trên những trang khác nhau và quan sát hành vi của cache. Khi bạn tìm ra cách để một phản hồi chứa dữ liệu độc hại của mình được cache, bạn đã sẵn sàng để phát tán mã độc đến người dùng nạn nhân.
-# **Khai thác các lỗi thiết kế của cache**
-
-Trong phần này, chúng ta sẽ xem xét kỹ hơn cách các lỗ hổng web cache poisoning có thể phát sinh do những khiếm khuyết chung trong thiết kế của bộ nhớ đệm (cache). Chúng ta cũng sẽ minh họa cách các khiếm khuyết này có thể bị khai thác.
-
-Tóm lại, website sẽ dễ bị web cache poisoning nếu xử lý đầu vào không thuộc khóa cache (unkeyed input) theo cách không an toàn và cho phép các phản hồi HTTP tiếp theo được lưu vào bộ nhớ đệm. Lỗ hổng này có thể được sử dụng như một phương thức phân phối cho nhiều kiểu tấn công khác nhau.
-
-## XSS
-
-Có lẽ lỗ hổng web cache poisoning dễ khai thác nhất là khi đầu vào **unkeyed** được phản xạ trong một phản hồi có thể được cache mà không được **sanitize** đúng cách.
-
-Ví dụ, hãy xem xét yêu cầu và phản hồi sau:
-
-```
 GET /en?region=uk HTTP/1.1
 Host: innocent-website.com
 X-Forwarded-Host: innocent-website.co.uk
@@ -208,6 +123,47 @@ Access-Control-Allow-Origin: *
 Như đã thấy ở phần trước, đôi khi kẻ tấn công chỉ có thể khiến máy chủ trả về một phản hồi độc hại bằng cách tạo một yêu cầu sử dụng nhiều header. Điều tương tự cũng đúng với các loại tấn công khác. Web cache poisoning đôi khi đòi hỏi kẻ tấn công phải xâu chuỗi nhiều kỹ thuật mà chúng ta đã thảo luận. Bằng cách xâu chuỗi các lỗ hổng khác nhau, thường có thể lộ ra những lớp lỗ hổng bổ sung vốn ban đầu không thể khai thác được.
 
 # Khai thác các lỗi triển khai cache
+
+<!-- TOC -->
+## Mục lục
+
+- [**Unsafe handling of resource imports**](#unsafe-handling-of-resource-imports)
+- [**Cookie-handling vulnerabilities**](#cookie-handling-vulnerabilities)
+- [**Multiple headers**](#multiple-headers)
+- [Phản hồi tiết lộ quá nhiều thông tin](#phản-hồi-tiết-lộ-quá-nhiều-thông-tin)
+  - [**Các chỉ dẫn Cache-Control**](#các-chỉ-dẫn-cache-control)
+  - [**Header Vary**](#header-vary)
+- [DOM](#dom)
+- [**Chaining web cache**](#chaining-web-cache)
+- [**Lỗ hổng khóa cache**](#lỗ-hổng-khóa-cache)
+- [Phương pháp dò lỗi](#phương-pháp-dò-lỗi)
+  - [**Xác định một cache oracle phù hợp**](#xác-định-một-cache-oracle-phù-hợp)
+  - [Thăm dò cách xử lý thành phần khóa](#thăm-dò-cách-xử-lý-thành-phần-khóa)
+  - [**Xác định một gadget có thể khai thác được**](#xác-định-một-gadget-có-thể-khai-thác-được)
+- [Port không được khóa](#port-không-được-khóa)
+- [Chuỗi truy vấn không được khóa](#chuỗi-truy-vấn-không-được-khóa)
+  - [Phát hiện](#phát-hiện)
+  - [Khai thác](#khai-thác)
+- [Tham số truy vấn không được khóa](#tham-số-truy-vấn-không-được-khóa)
+- [Che giấu tham số cache](#che-giấu-tham-số-cache)
+  - [Khai thác các bất đồng trong việc phân tích tham số](#khai-thác-các-bất-đồng-trong-việc-phân-tích-tham-số)
+  - [Khai thác hỗ trợ **fat GET**](#khai-thác-hỗ-trợ-fat-get)
+  - [Khai thác nội dung động trong việc import tài nguyên](#khai-thác-nội-dung-động-trong-việc-import-tài-nguyên)
+- [Khóa cache bị chuẩn hóa](#khóa-cache-bị-chuẩn-hóa)
+- [Tiêm vào khóa cache](#tiêm-vào-khóa-cache)
+- [Đầu độc cache nội bộ](#đầu-độc-cache-nội-bộ)
+  - [Cách xác định bộ nhớ đệm nội bộ](#cách-xác-định-bộ-nhớ-đệm-nội-bộ)
+  - [Kiểm tra bộ nhớ đệm nội bộ một cách an toàn](#kiểm-tra-bộ-nhớ-đệm-nội-bộ-một-cách-an-toàn)
+- [Web cache poisoning with an unkeyed header](#web-cache-poisoning-with-an-unkeyed-header)
+- [Web cache poisoning with unkeyed cookie](#web-cache-poisoning-with-unkeyed-cookie)
+- [Web cache poisoning with multiple headers](#web-cache-poisoning-with-multiple-headers)
+- [Targeted web cache poisoning using an unknown header](#targeted-web-cache-poisoning-using-an-unknown-header)
+- [Web cache poisoining via an unkeyed query string](#web-cache-poisoining-via-an-unkeyed-query-string)
+- [Web cache poisoning via unkeyed query parameter](#web-cache-poisoning-via-unkeyed-query-parameter)
+- [Web cache poisoning via fat GET request](#web-cache-poisoning-via-fat-get-request)
+- [Parameter cloaking](#parameter-cloaking)
+- [URL normalization](#url-normalization)
+<!-- /TOC -->
 
 Trong các lab trước, bạn đã học cách khai thác lỗ hổng web cache poisoning bằng cách thao túng các đầu vào unkeyed điển hình, như header HTTP và cookie. Mặc dù phương pháp này hiệu quả, nó chỉ chạm tới bề mặt những gì có thể xảy ra với web cache poisoning.
 

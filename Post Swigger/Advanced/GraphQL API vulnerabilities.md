@@ -1,143 +1,4 @@
-```table-of-contents
-```
-
-# GraphQL API vulnerabilities
-
-GraphQL API có thể phát sinh nhiều lỗ hổng do lỗi thiết kế và triển khai. Một ví dụ quen thuộc là tính năng **introspection** bị để mở, cho phép attacker gửi truy vấn để thu thập thông tin chi tiết về schema. Các cuộc tấn công vào GraphQL thường xuất hiện dưới dạng những request được chế tác đặc biệt nhằm lấy dữ liệu, thực hiện hành động trái phép, vượt qua cơ chế bảo vệ, hoặc làm lộ thông tin nhạy cảm. Mức độ ảnh hưởng có thể rất nghiêm trọng nếu attacker leo thang được quyền, truy cập được object không thuộc quyền của mình, hoặc khai thác thành công CSRF thông qua mutation.
-
-GraphQL không phải là một cơ chế bảo mật, cũng không tự động an toàn hơn REST. Nó chỉ là một cách tổ chức và truy vấn API khác với REST. Nếu hệ thống phía server kiểm soát quyền kém, xử lý input không chặt, hoặc để lộ quá nhiều thông tin về schema, attacker vẫn có thể khai thác rất hiệu quả. Điểm khác biệt nằm ở chỗ GraphQL tập trung rất nhiều khả năng vào một endpoint duy nhất, nên khi endpoint đó bị kiểm thử đúng cách, attacker thường có thể khám phá và khai thác nhanh hơn so với các API truyền thống.
-
-## What is GraphQL?
-
-GraphQL là một ngôn ngữ truy vấn dành cho API. Thay vì server trả về một cấu trúc dữ liệu cố định cho mỗi endpoint như trong nhiều REST API, GraphQL cho phép client mô tả chính xác mình muốn lấy những field nào. Điều này giúp frontend tối ưu hơn vì chỉ lấy đúng dữ liệu cần thiết, nhưng cũng đồng thời tăng bề mặt tấn công, do client có quyền chủ động chọn field, object và mối quan hệ cần truy vấn.
-
-Một GraphQL API thường được định nghĩa bằng một **schema**. Schema mô tả các kiểu dữ liệu, field, operation và kiểu trả về mà API hỗ trợ. Client dùng schema này để gửi các **query** nhằm đọc dữ liệu và **mutation** nhằm thay đổi dữ liệu. Ngoài ra còn có nhiều thành phần quan trọng khác như **arguments**, **variables**, **aliases**, **subscriptions** và **introspection**.
-
-Trong thực tế pentest, hiểu những khái niệm này rất quan trọng, vì phần lớn kỹ thuật khai thác GraphQL đều xoay quanh việc:
-- tìm endpoint GraphQL;
-- tìm hoặc suy ra schema;
-- xác định field, query và mutation có giá trị;
-- thay đổi arguments hoặc variables để truy cập dữ liệu trái phép;
-- lợi dụng aliases để thực hiện nhiều thao tác trong cùng một request;
-- kiểm tra mutation có bị CSRF hay không.
-
-## How GraphQL works
-
-GraphQL hoạt động theo mô hình một request mô tả dữ liệu cần lấy hoặc hành động cần thực hiện. Server nhận request đó, đối chiếu với schema, thực hiện các resolver tương ứng rồi trả về dữ liệu theo đúng cấu trúc mà client yêu cầu.
-
-Điều này khiến GraphQL rất mạnh vì chỉ với một request, client có thể lấy đồng thời nhiều object có liên quan với nhau. Tuy nhiên, cũng chính vì thế mà nếu quyền hạn được kiểm tra không chặt ở từng resolver hoặc từng field, attacker có thể dùng một request để trích xuất dữ liệu rất sâu mà frontend thông thường không bao giờ hiển thị.
-
-Một GraphQL request thường bao gồm:
-- phần operation, ví dụ query hoặc mutation;
-- phần field muốn lấy hoặc hành động muốn gọi;
-- các arguments hoặc variables nếu cần truyền giá trị động.
-
-Response thường có dạng JSON với phần `data`, và nếu có lỗi thì thêm phần `errors`. Trong pentest, trường `errors` rất đáng chú ý vì đôi khi nó tiết lộ tên field, tên type hoặc gợi ý về schema.
-
-## What is a GraphQL schema?
-
-Schema là phần mô tả cấu trúc của GraphQL API. Nó định nghĩa:
-- những type nào tồn tại;
-- mỗi type có những field nào;
-- field nào nhận argument;
-- query nào cho phép đọc dữ liệu;
-- mutation nào cho phép thay đổi dữ liệu.
-
-Schema giống như một “bản đồ” của toàn bộ API. Nếu attacker lấy được schema, việc khai thác dễ hơn rất nhiều vì không phải đoán mò endpoint hay tham số như với nhiều REST API. Thay vào đó, attacker có thể biết chính xác:
-- tên mutation nhạy cảm;
-- field riêng tư nhưng vẫn tồn tại;
-- object nào có quan hệ với object nào;
-- argument nào có vẻ dùng để tham chiếu trực tiếp tới object.
-
-Do đó, việc lộ schema thông qua introspection hoặc error message thường không phải là lỗ hổng cuối cùng, nhưng là một lợi thế cực lớn cho attacker.
-
-## What are GraphQL queries?
-
-Query là operation dùng để đọc dữ liệu. Client có thể yêu cầu đúng những field cần thiết thay vì nhận toàn bộ object. Điều này rất thuận tiện cho frontend, nhưng về góc độ bảo mật, nó tạo cơ hội để attacker yêu cầu thêm những field mà frontend bình thường không sử dụng.
-
-Nếu backend không kiểm soát quyền ở mức field hoặc object, attacker có thể:
-- thêm field nhạy cảm vào query;
-- thay `id` để lấy object của user khác;
-- truy cập bài viết riêng tư;
-- lấy thông tin nội bộ chưa bao giờ xuất hiện trên giao diện.
-
-## What are GraphQL mutations?
-
-Mutation là operation dùng để thay đổi trạng thái hệ thống. Ví dụ:
-- đăng nhập;
-- đăng ký;
-- đổi email;
-- đổi mật khẩu;
-- xóa object;
-- tạo bài viết;
-- cập nhật thông tin người dùng.
-
-Mutation thường là nơi rủi ro nhất trong GraphQL API vì nó gắn trực tiếp với hành động nhạy cảm. Nếu mutation nhận input từ client mà backend không xác thực và kiểm tra quyền đúng cách, attacker có thể sửa hoặc xóa dữ liệu trái phép.
-
-Mutation cũng là mục tiêu chính khi test CSRF. Nếu GraphQL endpoint chấp nhận request theo cách mà trình duyệt có thể gửi xuyên site, mutation hoàn toàn có thể bị khai thác qua CSRF như bất kỳ API nào khác.
-
-## Components of queries and mutations
-
-Queries và mutations được ghép từ nhiều thành phần nhỏ. Những thành phần này rất quen thuộc với lập trình viên GraphQL, nhưng với pentester thì cũng là các điểm cần chú ý đặc biệt.
-
-### Fields
-
-Field là đơn vị dữ liệu cơ bản mà client yêu cầu. Chính nhờ khả năng tự chọn field mà GraphQL trở nên linh hoạt. Nhưng cũng vì vậy, attacker có thể thử thêm các field không được frontend dùng tới để xem backend có trả về hay không.
-
-### Arguments
-
-Arguments là giá trị truyền vào field hoặc operation. Chúng rất thường được dùng để chọn object cần trả về, ví dụ `id`, `username`, `slug`, `postId` hoặc `userId`. Nếu backend dùng trực tiếp những arguments này để truy vấn dữ liệu mà không áp kiểm tra quyền, GraphQL API có thể dính IDOR hoặc các lỗi object-level authorization.
-
-Đây là một trong những kiểu lỗi thực tế nhất khi pentest GraphQL: chỉ cần thay đổi một `id`, attacker có thể truy cập object của người khác nếu backend không kiểm tra đúng.
-
-### Variables
-
-Variables cho phép truyền giá trị động tách khỏi nội dung query chính. Điều này giúp query dễ tái sử dụng hơn, nhưng không làm thay đổi bản chất bảo mật. Nếu server tin vào variable do client gửi mà không kiểm tra quyền hoặc kiểu dữ liệu, lỗ hổng vẫn xuất hiện như khi dùng inline arguments.
-
-### Aliases
-
-Aliases cho phép gọi cùng một field hoặc mutation nhiều lần trong cùng một request nhưng dưới những tên khác nhau. Đây là một tính năng hợp lệ của GraphQL, nhưng có thể bị attacker lợi dụng để bypass các cơ chế rate limit hoặc brute-force protection nếu hệ thống chỉ đếm số lượng request HTTP.
-
-Ví dụ, attacker có thể gửi hàng chục mutation đăng nhập trong cùng một request duy nhất bằng alias, thay vì gửi hàng chục request riêng biệt.
-
-## Subscriptions
-
-Subscriptions là cơ chế cho phép client nhận cập nhật theo thời gian thực khi dữ liệu thay đổi. Chủ đề này không phải trọng tâm chính trong topic GraphQL API vulnerabilities của PortSwigger, nhưng cần hiểu rằng nó cũng là một phần của hệ sinh thái GraphQL. Nếu một ứng dụng dùng subscriptions, pentester vẫn cần kiểm tra logic xác thực, quyền truy cập và cách dữ liệu được phát tới client.
-
-Dù subscriptions không được nhấn mạnh nhiều trong các lab GraphQL cơ bản, sự tồn tại của chúng cho thấy GraphQL không chỉ là truy vấn đồng bộ đơn giản. Nó có thể mở thêm bề mặt tấn công tùy theo cách triển khai.
-
-## Introspection
-
-Introspection là cơ chế cho phép một GraphQL API mô tả chính nó. Client có thể hỏi API những câu như:
-- có những type nào;
-- query nào tồn tại;
-- mutation nào tồn tại;
-- field nào thuộc về type nào;
-- mỗi field nhận argument gì;
-- kiểu trả về là gì.
-
-Đây là một tính năng rất hữu ích trong phát triển vì giúp tooling và IDE làm việc dễ dàng hơn. Nhưng nếu để mở trên production, attacker có thể dùng nó để dựng lại gần như toàn bộ schema.
-
-Tự bản thân introspection không nhất thiết là lỗ hổng nghiêm trọng, nhưng nó làm quá trình reconnaissance nhanh hơn rất nhiều. Một attacker không còn phải đoán mò tên query hay mutation nữa. Thay vào đó, họ có thể hỏi thẳng API về những gì tồn tại.
-
-## Finding GraphQL endpoints
-
-Khi pentest GraphQL, bước đầu tiên là xác định endpoint. Không giống REST nơi nhiều chức năng được tách thành nhiều URL khác nhau, GraphQL thường gom hầu hết thao tác vào một số rất ít endpoint, đôi khi chỉ một endpoint duy nhất.
-
-Những vị trí phổ biến cần thử gồm:
-- `/graphql`
-- `/api`
-- `/api/graphql`
-- `/graphql/v1`
-- `/graphql/graphql`
-
-Ngoài các đường dẫn phổ biến, cũng nên chú ý tới traffic frontend. Một số ứng dụng không lộ rõ endpoint trên giao diện, nhưng request của frontend trong HTTP history hoặc JavaScript bundle có thể chỉ ra nơi GraphQL đang được sử dụng.
-
-### Universal queries
-
-Một cách xác nhận rất nhanh là gửi universal query:
-
-```graphql
+graphql
 query{__typename}
 ```
 
@@ -301,6 +162,37 @@ GraphQL API vulnerabilities thường đến từ sự kết hợp giữa tính 
 Nói ngắn gọn, GraphQL không nguy hiểm hơn REST một cách mặc định, nhưng khi schema, access control và validation không được thiết kế cẩn thận, attacker có thể khai thác GraphQL rất hiệu quả chỉ qua một số ít endpoint.
 
 # WU
+
+<!-- TOC -->
+## Mục lục
+
+  - [Common endpoint names](#common-endpoint-names)
+  - [Request methods](#request-methods)
+  - [Initial testing](#initial-testing)
+- [Exploiting unsanitized arguments](#exploiting-unsanitized-arguments)
+- [Discovering schema information](#discovering-schema-information)
+  - [Using introspection](#using-introspection)
+  - [Probing for introspection](#probing-for-introspection)
+  - [Running a full introspection query](#running-a-full-introspection-query)
+  - [Visualizing introspection results](#visualizing-introspection-results)
+  - [Suggestions](#suggestions)
+- [Bypassing GraphQL introspection defenses](#bypassing-graphql-introspection-defenses)
+- [Bypassing rate limiting using aliases](#bypassing-rate-limiting-using-aliases)
+- [GraphQL CSRF](#graphql-csrf)
+- [Preventing GraphQL attacks](#preventing-graphql-attacks)
+  - [Kiểm soát lộ schema](#kiểm-soát-lộ-schema)
+  - [Kiểm soát quyền phía server](#kiểm-soát-quyền-phía-server)
+  - [Kiểm soát complexity và operation limits](#kiểm-soát-complexity-và-operation-limits)
+  - [Phòng chống brute force](#phòng-chống-brute-force)
+  - [Phòng chống CSRF](#phòng-chống-csrf)
+  - [Giảm thông tin trong lỗi](#giảm-thông-tin-trong-lỗi)
+- [Tóm tắt](#tóm-tắt)
+- [Accessing private GraphQL posts](#accessing-private-graphql-posts)
+- [Accidents exposure private graphQL fields](#accidents-exposure-private-graphql-fields)
+- [Finding a hidden GraphQL endpoint](#finding-a-hidden-graphql-endpoint)
+- [Bypassing GraphQL brute force protections](#bypassing-graphql-brute-force-protections)
+- [Performing CSRF exploits over GraphQL](#performing-csrf-exploits-over-graphql)
+<!-- /TOC -->
 - [x] Accessing private GraphQL posts
 - [x] Accidental exposure of private GraphQL fields
 - [x] Finding a hidden GraphQL endpoint

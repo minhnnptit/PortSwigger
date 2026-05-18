@@ -1,27 +1,4 @@
-```table-of-contents
-```
 
-# CSRF là gì?
-
-Giả mạo yêu cầu liên trang (còn được gọi là CSRF) là một lỗ hổng bảo mật web cho phép kẻ tấn công khiến người dùng thực hiện các hành động mà họ không hề có ý định thực hiện. Lỗ hổng này cho phép kẻ tấn công phần nào lách qua **chính sách cùng nguồn gốc** (same origin policy), vốn được thiết kế để ngăn các website khác nhau can thiệp lẫn nhau.
-![](../../image/Pasted%20image%2020260504185725.png)
-# Hậu quả
-
-Trong một cuộc tấn công CSRF thành công, kẻ tấn công khiến người dùng nạn nhân thực hiện một hành động ngoài ý muốn. Ví dụ, điều này có thể là thay đổi địa chỉ email trên tài khoản của họ, đổi mật khẩu, hoặc thực hiện một giao dịch chuyển tiền. Tùy thuộc vào bản chất của hành động, kẻ tấn công có thể giành quyền kiểm soát hoàn toàn tài khoản của người dùng. Nếu người dùng bị xâm phạm có vai trò đặc quyền trong ứng dụng, thì kẻ tấn công thậm chí có thể kiểm soát hoàn toàn tất cả dữ liệu và chức năng của ứng dụng.
-
-# Cách CSRF hoạt động
-
-Để một cuộc tấn công CSRF có thể xảy ra, cần hội đủ ba điều kiện chính:
-1. **Một hành động liên quan**
-    Ứng dụng phải có một hành động mà kẻ tấn công có lý do để dụ nạn nhân thực hiện. Hành động này có thể là hành động đặc quyền (như chỉnh sửa quyền của người dùng khác) hoặc hành động liên quan đến dữ liệu cá nhân của người dùng (như thay đổi mật khẩu của chính họ).
-2. **Xử lý phiên dựa trên cookie**
-    Việc thực hiện hành động bao gồm việc gửi một hoặc nhiều yêu cầu HTTP, và ứng dụng chỉ dựa vào session-cookie để xác định người dùng nào đã gửi các yêu cầu đó. Không có cơ chế bổ sung nào khác để theo dõi session hoặc xác thực yêu cầu của người dùng.
-3. **Không có tham số yêu cầu khó đoán**
-    Các yêu cầu để thực hiện hành động không chứa tham số nào có giá trị mà kẻ tấn công không thể biết hoặc đoán được. Ví dụ: khi buộc người dùng thay đổi mật khẩu, chức năng sẽ không bị khai thác nếu kẻ tấn công cần biết giá trị mật khẩu hiện tại.
-    
-Ví dụ, giả sử một ứng dụng có chức năng cho phép người dùng thay đổi địa chỉ email trong tài khoản của họ. Khi người dùng thực hiện hành động này, họ gửi một yêu cầu HTTP như sau:
-
-```
 POST /email/change HTTP/1.1
 Host: vulnerable-website.com
 Content-Type: application/x-www-form-urlencoded
@@ -69,6 +46,46 @@ Nếu nạn nhân truy cập vào trang web của kẻ tấn công, các bước
 > - **Xác thực HTTP Basic**
 > - **Xác thực dựa trên chứng chỉ (certificate-based authentication)**
 # Cách xây dựng cuộc tấn công CSRF
+
+<!-- TOC -->
+## Mục lục
+
+- [Khái niệm](#khái-niệm)
+- [Khai thác](#khai-thác)
+  - [Request](#request)
+  - [Token](#token)
+  - [User session](#user-session)
+  - [Non-session cookie](#non-session-cookie)
+  - [Duplicate CSFR token in cookie](#duplicate-csfr-token-in-cookie)
+- [Khái niệm SameSite](#khái-niệm-samesite)
+- [Khái niệm SameSite cookie](#khái-niệm-samesite-cookie)
+- [Site v/s Origin](#site-vs-origin)
+- [Cách SameSite hoạt động](#cách-samesite-hoạt-động)
+  - [Strict](#strict)
+  - [Lax](#lax)
+  - [None](#none)
+- [Khai thác](#khai-thác-1)
+  - [Lax: GET Request](#lax-get-request)
+  - [On-site gadgets](#on-site-gadgets)
+  - [Sibling domain](#sibling-domain)
+  - [**Newly issued cookies**](#newly-issued-cookies)
+- [Header Referer](#header-referer)
+- [Khai thác](#khai-thác-2)
+  - [Tồn tại header](#tồn-tại-header)
+  - [Xác thực Referer](#xác-thực-referer)
+- [CSRF vul with no defense](#csrf-vul-with-no-defense)
+- [CSRF where token validatoin depends on request method](#csrf-where-token-validatoin-depends-on-request-method)
+- [CSRF where token validation depends on token being present](#csrf-where-token-validation-depends-on-token-being-present)
+- [CSRF where token is not tied to user session](#csrf-where-token-is-not-tied-to-user-session)
+- [CSRF where token is tied to non-session cookie](#csrf-where-token-is-tied-to-non-session-cookie)
+- [CSRF where token is duplicated in cookie](#csrf-where-token-is-duplicated-in-cookie)
+- [SameSite Strict bypass via client-side redirect](#samesite-strict-bypass-via-client-side-redirect)
+- [SameSite Lax bypass via cookie refresh](#samesite-lax-bypass-via-cookie-refresh)
+- [SameSite Lax bypass via method override](#samesite-lax-bypass-via-method-override)
+- [CSRF where Referer validation depends on header being present](#csrf-where-referer-validation-depends-on-header-being-present)
+- [CSRF with broken Referer validation](#csrf-with-broken-referer-validation)
+- [SameSite Strict bypass via sibling domain](#samesite-strict-bypass-via-sibling-domain)
+<!-- /TOC -->
 
 Việc tự tay tạo HTML cho một khai thác CSRF có thể khá rườm rà, đặc biệt khi yêu cầu cần thực hiện chứa nhiều tham số hoặc có những đặc điểm bất thường. Cách đơn giản nhất để xây dựng một khai thác CSRF là sử dụng **CSRF PoC generator** tích hợp sẵn trong **Burp Suite Professional**:
 
@@ -856,7 +873,6 @@ bởi vì mặc định, các trình duyệt hiện nay (đặc biệt là Chrom
 
 ![](../../image/Pasted%20image%2020260505033031.png)
 ![](../../image/Pasted%20image%2020260505033329.png)
-
 
 
 ```

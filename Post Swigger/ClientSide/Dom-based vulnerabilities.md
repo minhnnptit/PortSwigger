@@ -1,35 +1,4 @@
-```table-of-contents
-```
-# DOM là gì?
-
-Mô hình Đối tượng Tài liệu (Document Object Model – DOM) là một biểu diễn phân cấp của trình duyệt web về các phần tử trên trang. Các website có thể sử dụng JavaScript để thao tác với các node và object trong DOM, cũng như các thuộc tính của chúng. Việc thao tác DOM tự nó không phải là vấn đề – thực tế đây là một phần không thể thiếu trong cách các website hiện đại hoạt động.
-
-Tuy nhiên, JavaScript xử lý dữ liệu không an toàn có thể tạo điều kiện cho nhiều kiểu tấn công. Lỗ hổng dựa trên DOM xuất hiện khi một website chứa JavaScript nhận một giá trị có thể bị kẻ tấn công kiểm soát (gọi là **source**) và truyền nó vào một hàm nguy hiểm (gọi là **sink**).
-# Taint flow
-Nhiều lỗ hổng dựa trên DOM có thể được truy ngược lại nguồn gốc từ các vấn đề trong cách mà mã phía client thao tác với dữ liệu có thể bị kẻ tấn công kiểm soát.
-## Taint flow là gì?
-
-Để có thể khai thác hoặc giảm thiểu những lỗ hổng này, điều quan trọng trước tiên là phải nắm vững những kiến thức cơ bản về **dòng dữ liệu ô nhiễm (taint flow)** giữa **source** và **sink**.
-### Source
-
-**Source** là một thuộc tính JavaScript nhận dữ liệu có khả năng bị kẻ tấn công kiểm soát.
-
-Ví dụ về một **source** là thuộc tính **`location.search`**, vì nó đọc dữ liệu từ query string, vốn tương đối dễ bị kẻ tấn công điều khiển.
-
-Về cơ bản, bất kỳ thuộc tính nào có thể bị kẻ tấn công kiểm soát đều là một **source** tiềm ẩn. Điều này bao gồm:
-
-- URL tham chiếu (**`document.referrer`**)
-- Cookie của người dùng (**`document.cookie`**)
-- Các thông điệp web (**web messages**)
-### Sink
-
-**Sink** là một hàm JavaScript hoặc đối tượng DOM có khả năng gây ra các hậu quả không mong muốn nếu dữ liệu do kẻ tấn công kiểm soát được truyền vào. Ví dụ, hàm `eval()` là một sink vì nó xử lý đối số truyền vào như mã JavaScript. Một ví dụ về sink ở mức HTML là `document.body.innerHTML`, vì nó có thể cho phép kẻ tấn công chèn HTML độc hại và thực thi JavaScript tùy ý.
-
-Về bản chất, các lỗ hổng dựa trên DOM xuất hiện khi một website truyền dữ liệu từ một source tới một sink, và sink đó xử lý dữ liệu một cách không an toàn trong ngữ cảnh phiên làm việc của client.
-
-Source phổ biến nhất là URL, thường được truy cập qua đối tượng `location`. Kẻ tấn công có thể tạo một liên kết để gửi nạn nhân tới trang dễ bị tổn thương với payload nằm trong phần query string hoặc fragment của URL. Xem xét đoạn mã sau:
-
-```jsx
+jsx
 goto = location.hash.slice(1)
 if (goto.startsWith('https:')) {
   location = goto;
@@ -96,6 +65,32 @@ Nếu chức năng mong muốn của ứng dụng buộc phải có hành vi nà
 theo đúng thứ tự cần thiết.
 
 # DOM-Based XSS
+
+<!-- TOC -->
+## Mục lục
+
+  - [Source dễ bị tấn công](#source-dễ-bị-tấn-công)
+  - [Sink dễ bị tấn công](#sink-dễ-bị-tấn-công)
+- [Bảo mật](#bảo-mật)
+- [Kiểm thử](#kiểm-thử)
+  - [HTML sinks](#html-sinks)
+  - [**JavaScript execution sinks**](#javascript-execution-sinks)
+  - [DOM Invader](#dom-invader)
+- [Xâm nhập](#xâm-nhập)
+  - [**Different sources and sinks**](#different-sources-and-sinks)
+  - [**Sources and sinks in third-party dependencies**](#sources-and-sinks-in-third-party-dependencies)
+  - [jQuery](#jquery)
+  - [AngularJs](#angularjs)
+  - [**Reflected and stored data**](#reflected-and-stored-data)
+- [Sink kém bảo mật](#sink-kém-bảo-mật)
+- [DOM-based open redirection](#dom-based-open-redirection)
+- [DOM-based cookie manipulation](#dom-based-cookie-manipulation)
+- [DOM-based XSS web message](#dom-based-xss-web-message)
+- [DOM XSS using web messages and a JavaScript URL](#dom-xss-using-web-messages-and-a-javascript-url)
+- [DOM XSS using web messages and `JSON.parse`](#dom-xss-using-web-messages-and jsonparse)
+- [Exploiting DOM clobbering to enable XSS](#exploiting-dom-clobbering-to-enable-xss)
+- [Clobbering DOM attributes to bypass HTML filters](#clobbering-dom-attributes-to-bypass-html-filters)
+<!-- /TOC -->
 
 Lỗ hổng DOM-based XSS thường phát sinh khi JavaScript lấy dữ liệu từ **source** có thể bị kẻ tấn công kiểm soát, chẳng hạn như URL, và truyền nó tới một **sink** hỗ trợ thực thi mã động, như `eval()` hoặc `innerHTML`. Điều này cho phép kẻ tấn công thực thi JavaScript độc hại, thường cho phép chúng chiếm đoạt tài khoản người dùng khác.
 

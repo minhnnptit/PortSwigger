@@ -1,45 +1,4 @@
-```table-of-contents
-```
-
-# Websockets
-
----
-
-WebSockets được sử dụng rộng rãi trong các ứng dụng web hiện đại. Chúng được khởi tạo thông qua HTTP và cung cấp các kết nối lâu dài với khả năng truyền thông bất đồng bộ theo cả hai chiều.
-
-WebSockets được dùng cho nhiều mục đích khác nhau, bao gồm thực hiện hành động của người dùng và truyền tải thông tin nhạy cảm. **Hầu như mọi lỗ hổng bảo mật web có thể xảy ra với HTTP thông thường cũng có thể xuất hiện trong giao tiếp qua WebSockets.**
-![](../../image/Pasted%20image%2020260503024805.png)
----
-
-# Websockets là gì?
-
----
-
-WebSockets là một giao thức truyền thông hai chiều, song công, được khởi tạo qua HTTP. Chúng thường được sử dụng trong các ứng dụng web hiện đại cho việc truyền phát dữ liệu và các loại lưu lượng bất đồng bộ khác.
-
-Trong phần này, chúng tôi sẽ giải thích sự khác biệt giữa HTTP và WebSockets, mô tả cách thiết lập kết nối WebSocket, và phác thảo hình thức của các thông điệp WebSocket.
-
----
-
-# HTTP v/s Websockets
-
----
-
-Hầu hết việc giao tiếp giữa trình duyệt web và các website sử dụng **HTTP**. Với HTTP, phía client sẽ gửi một request và server sẽ trả về một response. Thông thường, phản hồi diễn ra ngay lập tức và giao dịch kết thúc. Ngay cả khi kết nối mạng vẫn được giữ mở, thì nó cũng chỉ được dùng cho một giao dịch riêng biệt gồm một request và một response.
-
-Một số website hiện đại sử dụng **WebSockets**. Kết nối WebSocket được khởi tạo thông qua HTTP và thường tồn tại trong thời gian dài. Thông điệp có thể được gửi theo cả hai chiều bất kỳ lúc nào và không mang tính chất giao dịch (transactional). Kết nối thường sẽ được giữ mở và ở trạng thái chờ cho đến khi client hoặc server sẵn sàng gửi một thông điệp.
-
-WebSockets đặc biệt hữu ích trong các tình huống cần **độ trễ thấp** hoặc **thông điệp khởi tạo từ phía server**, chẳng hạn như nguồn dữ liệu tài chính theo thời gian thực.
-
----
-
-# Cách thiết lập Websockets
-
----
-
-Kết nối WebSocket thường được tạo bằng **JavaScript phía client**, ví dụ như sau:
-
-```jsx
+jsx
 var ws = new WebSocket("wss://normal-website.com/chat");
 ```
 
@@ -115,6 +74,26 @@ Ví dụ, một ứng dụng **chat-bot** dùng WebSocket có thể gửi thông
 ---
 
 # Thao túng Websockets traffic
+
+<!-- TOC -->
+## Mục lục
+
+- [Quá trình bắt tay](#quá-trình-bắt-tay)
+- [Điểm quan trọng](#điểm-quan-trọng)
+- [Websockets message](#websockets-message)
+- [Intercept & Modify](#intercept--modify)
+- [Replay & Generate](#replay--generate)
+- [Manipulate](#manipulate)
+- [Websockets message](#websockets-message-1)
+- [Websockets handshake](#websockets-handshake)
+- [**Cross-site WebSocket hijacking**](#cross-site-websocket-hijacking)
+  - [Khái niệm](#khái-niệm)
+  - [Hậu quả](#hậu-quả)
+  - [Tấn công](#tấn-công)
+- [Manipulating WebSocket messages to exploit vulnerabilities](#manipulating-websocket-messages-to-exploit-vulnerabilities)
+- [Cross-site WebSocket hijacking](#cross-site-websocket-hijacking-1)
+- [Manipulating the WebSocket handshake to exploit vulnerabilities](#manipulating-the-websocket-handshake-to-exploit-vulnerabilities)
+<!-- /TOC -->
 
 ---
 
